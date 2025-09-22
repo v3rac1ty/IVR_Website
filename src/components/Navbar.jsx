@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { TiLocationArrow } from "react-icons/ti";
 
 import Button from "./Button";
+import { useVideo } from "../contexts/VideoContext";
 
 const navItems = ["Nexus", "Vault", "Prologue", "About", "Contact"];
 
@@ -16,6 +17,7 @@ const NavBar = () => {
   // Refs for audio and navigation container
   const audioElementRef = useRef(null);
   const navContainerRef = useRef(null);
+  const { currentVideoSrc, currentVideoTime, getCurrentVideoTime } = useVideo();
 
   const { y: currentScrollY } = useWindowScroll();
   const [isNavVisible, setIsNavVisible] = useState(true);
@@ -27,14 +29,34 @@ const NavBar = () => {
     setIsIndicatorActive((prev) => !prev);
   };
 
-  // Manage audio playback
+  // Update audio source when currentVideoSrc changes
+  useEffect(() => {
+    if (audioElementRef.current) {
+      audioElementRef.current.src = `/${currentVideoSrc}`;
+      // If audio is currently playing, restart it with the new source
+      if (isAudioPlaying) {
+        const videoTime = getCurrentVideoTime();
+        audioElementRef.current.currentTime = videoTime;
+        audioElementRef.current.play();
+      }
+    }
+  }, [currentVideoSrc, isAudioPlaying, getCurrentVideoTime]);
+
+  // Manage audio playback - only sync when starting to play
   useEffect(() => {
     if (isAudioPlaying) {
-      audioElementRef.current.play();
+      // Set the audio to the current video time before playing
+      const videoTime = getCurrentVideoTime();
+      if (audioElementRef.current) {
+        audioElementRef.current.currentTime = videoTime;
+        audioElementRef.current.play();
+      }
     } else {
-      audioElementRef.current.pause();
+      if (audioElementRef.current) {
+        audioElementRef.current.pause();
+      }
     }
-  }, [isAudioPlaying]);
+  }, [isAudioPlaying, getCurrentVideoTime]);
 
   useEffect(() => {
     if (currentScrollY === 0) {
@@ -102,7 +124,7 @@ const NavBar = () => {
               <audio
                 ref={audioElementRef}
                 className="hidden"
-                src="/audio/loop.mp3"
+                src={`/${currentVideoSrc}`}
                 loop
               />
               {[1, 2, 3, 4].map((bar) => (

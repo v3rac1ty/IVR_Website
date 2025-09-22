@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 
 import Button from "./Button";
 import VideoPreview from "./VideoPreview";
+import { useVideo } from "../contexts/VideoContext";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -18,6 +19,8 @@ const Hero = () => {
 
   const totalVideos = 4;
   const nextVdRef = useRef(null);
+  const mainVideoRef = useRef(null);
+  const { updateCurrentVideo, setMainVideoRef, updateCurrentVideoTime } = useVideo();
 
   const handleVideoLoad = () => {
     setLoadedVideos((prev) => prev + 1);
@@ -28,6 +31,18 @@ const Hero = () => {
       setLoading(false);
     }
   }, [loadedVideos]);
+
+  // Register the main video ref with context
+  useEffect(() => {
+    setMainVideoRef(mainVideoRef);
+  }, [setMainVideoRef]);
+
+  // Update current video source when index changes
+  useEffect(() => {
+    updateCurrentVideo(getVideoSrc(currentIndex));
+  }, [currentIndex, updateCurrentVideo]);
+
+  // No need for continuous time updates - we'll get the time when needed
 
   const handleMiniVdClick = () => {
     setHasClicked(true);
@@ -129,6 +144,7 @@ const Hero = () => {
             onLoadedData={handleVideoLoad}
           />
           <video
+            ref={mainVideoRef}
             src={getVideoSrc(
               currentIndex === totalVideos - 1 ? 1 : currentIndex
             )}
