@@ -3,6 +3,7 @@ import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/all";
 import { TiLocationArrow } from "react-icons/ti";
 import { useEffect, useRef, useState } from "react";
+import { useWindowScroll } from "react-use";
 
 import Button from "./Button";
 import VideoPreview from "./VideoPreview";
@@ -20,7 +21,9 @@ const Hero = () => {
   const totalVideos = 4;
   const nextVdRef = useRef(null);
   const mainVideoRef = useRef(null);
-  const { updateCurrentVideo, setMainVideoRef, updateCurrentVideoTime } = useVideo();
+  const heroSectionRef = useRef(null);
+  const { updateCurrentVideo, setMainVideoRef, updateCurrentVideoTime, isAudioPlaying } = useVideo();
+  const { y: scrollY } = useWindowScroll();
 
   const handleVideoLoad = () => {
     setLoadedVideos((prev) => prev + 1);
@@ -41,6 +44,43 @@ const Hero = () => {
   useEffect(() => {
     updateCurrentVideo(getVideoSrc(currentIndex));
   }, [currentIndex, updateCurrentVideo]);
+
+  // Scroll-based video pause/resume with audio sync
+  useEffect(() => {
+    if (!heroSectionRef.current || !mainVideoRef.current) return;
+
+    const heroRect = heroSectionRef.current.getBoundingClientRect();
+    const viewportHeight = window.innerHeight;
+    const padding = 100; // Extra padding for off-screen detection
+
+    // Check if hero section is off-screen with padding
+    const isOffScreen = heroRect.bottom < -padding || heroRect.top > viewportHeight + padding;
+
+    // Get audio element from navbar
+    const audioElement = document.querySelector('audio');
+
+    if (isOffScreen) {
+      // Pause video when off-screen
+      if (mainVideoRef.current && !mainVideoRef.current.paused) {
+        mainVideoRef.current.pause();
+      }
+      // Only pause audio if the audio button is active
+      if (audioElement && !audioElement.paused && isAudioPlaying) {
+        audioElement.pause();
+      }
+    } else {
+      // Resume video when back on-screen
+      if (mainVideoRef.current && mainVideoRef.current.paused) {
+        mainVideoRef.current.play();
+      }
+      // Only resume audio if the audio button is active
+      if (audioElement && audioElement.paused && isAudioPlaying) {
+        const videoTime = mainVideoRef.current.currentTime;
+        audioElement.currentTime = videoTime;
+        audioElement.play();
+      }
+    }
+  }, [scrollY, isAudioPlaying]);
 
   // No need for continuous time updates - we'll get the time when needed
 
@@ -98,7 +138,7 @@ const Hero = () => {
   const getVideoSrc = (index) => `videos/hero-${index}.mp4`;
 
   return (
-    <div className="relative h-dvh w-screen overflow-x-hidden">
+    <div ref={heroSectionRef} data-hero-section className="relative h-dvh w-screen overflow-x-hidden">
       {loading && (
         <div className="flex-center absolute z-[100] h-dvh w-screen overflow-hidden bg-violet-50">
           {/* https://uiverse.io/G4b413l/tidy-walrus-92 */}
@@ -157,7 +197,7 @@ const Hero = () => {
         </div>
 
         <h1 className="special-font hero-heading absolute bottom-5 right-5 z-40 text-blue-75">
-          G<b>A</b>MING
+          R<b>O</b>B<b>O</b>TICS
         </h1>
 
         <div className="absolute left-0 top-0 z-40 size-full">

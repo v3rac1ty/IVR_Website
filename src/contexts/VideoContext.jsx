@@ -14,6 +14,7 @@ export const VideoProvider = ({ children }) => {
   const [currentVideoSrc, setCurrentVideoSrc] = useState('videos/hero-1.mp4');
   const [currentVideoTime, setCurrentVideoTime] = useState(0);
   const [mainVideoRef, setMainVideoRefState] = useState(null);
+  const [isAudioPlaying, setIsAudioPlaying] = useState(false);
 
   const updateCurrentVideo = (src) => {
     setCurrentVideoSrc(src);
@@ -31,6 +32,10 @@ export const VideoProvider = ({ children }) => {
     return mainVideoRef?.current?.currentTime || 0;
   };
 
+  const updateAudioState = (playing) => {
+    setIsAudioPlaying(playing);
+  };
+
   return (
     <VideoContext.Provider value={{ 
       currentVideoSrc, 
@@ -38,7 +43,9 @@ export const VideoProvider = ({ children }) => {
       currentVideoTime,
       updateCurrentVideoTime,
       setMainVideoRef,
-      getCurrentVideoTime
+      getCurrentVideoTime,
+      isAudioPlaying,
+      updateAudioState
     }}>
       {children}
     </VideoContext.Provider>

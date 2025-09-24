@@ -10,14 +10,13 @@ import { useVideo } from "../contexts/VideoContext";
 const navItems = ["Nexus", "Vault", "Prologue", "About", "Contact"];
 
 const NavBar = () => {
-  // State for toggling audio and visual indicator
-  const [isAudioPlaying, setIsAudioPlaying] = useState(false);
+  // State for visual indicator
   const [isIndicatorActive, setIsIndicatorActive] = useState(false);
 
   // Refs for audio and navigation container
   const audioElementRef = useRef(null);
   const navContainerRef = useRef(null);
-  const { currentVideoSrc, currentVideoTime, getCurrentVideoTime } = useVideo();
+  const { currentVideoSrc, currentVideoTime, getCurrentVideoTime, isAudioPlaying, updateAudioState } = useVideo();
 
   const { y: currentScrollY } = useWindowScroll();
   const [isNavVisible, setIsNavVisible] = useState(true);
@@ -25,8 +24,9 @@ const NavBar = () => {
 
   // Toggle audio and visual indicator
   const toggleAudioIndicator = () => {
-    setIsAudioPlaying((prev) => !prev);
-    setIsIndicatorActive((prev) => !prev);
+    const newAudioState = !isAudioPlaying;
+    setIsIndicatorActive(newAudioState);
+    updateAudioState(newAudioState);
   };
 
   // Update audio source when currentVideoSrc changes
@@ -57,6 +57,8 @@ const NavBar = () => {
       }
     }
   }, [isAudioPlaying, getCurrentVideoTime]);
+
+  // Audio sync is now handled by the Hero component to prevent desync issues
 
   useEffect(() => {
     if (currentScrollY === 0) {
