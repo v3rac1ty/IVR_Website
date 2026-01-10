@@ -37,7 +37,27 @@ const NavBar = () => {
       if (isAudioPlaying) {
         const videoTime = getCurrentVideoTime();
         audioElementRef.current.currentTime = videoTime;
-        audioElementRef.current.play();
+        const playPromise = audioElementRef.current.play();
+        if (playPromise !== undefined) {
+          playPromise.catch((err) => {
+            console.warn('Autoplay failed:', err);
+            const resumePlayback = () => {
+              try {
+                const videoTime = getCurrentVideoTime();
+                audioElementRef.current.currentTime = videoTime;
+                audioElementRef.current.play().then(() => {
+                  updateAudioState(true);
+                  setIsIndicatorActive(true);
+                }).catch((e) => console.warn('Play after gesture failed:', e));
+              } catch (e) {
+                console.warn('Resume handler error:', e);
+              } finally {
+                window.removeEventListener('pointerdown', resumePlayback);
+              }
+            };
+            window.addEventListener('pointerdown', resumePlayback, { once: true });
+          });
+        }
       }
     }
   }, [currentVideoSrc, isAudioPlaying, getCurrentVideoTime]);
@@ -49,7 +69,27 @@ const NavBar = () => {
       const videoTime = getCurrentVideoTime();
       if (audioElementRef.current) {
         audioElementRef.current.currentTime = videoTime;
-        audioElementRef.current.play();
+        const playPromise = audioElementRef.current.play();
+        if (playPromise !== undefined) {
+          playPromise.catch((err) => {
+            console.warn('Autoplay failed:', err);
+            const resumePlayback = () => {
+              try {
+                const videoTime = getCurrentVideoTime();
+                audioElementRef.current.currentTime = videoTime;
+                audioElementRef.current.play().then(() => {
+                  updateAudioState(true);
+                  setIsIndicatorActive(true);
+                }).catch((e) => console.warn('Play after gesture failed:', e));
+              } catch (e) {
+                console.warn('Resume handler error:', e);
+              } finally {
+                window.removeEventListener('pointerdown', resumePlayback);
+              }
+            };
+            window.addEventListener('pointerdown', resumePlayback, { once: true });
+          });
+        }
       }
     } else {
       if (audioElementRef.current) {
@@ -108,15 +148,35 @@ const NavBar = () => {
           {/* Navigation Links and Audio Button */}
           <div className="flex h-full items-center">
             <div className="hidden md:block">
-              {navItems.map((item, index) => (
-                <a
-                  key={index}
-                  href={`#${item.toLowerCase()}`}
-                  className="nav-hover-btn"
-                >
-                  {item}
-                </a>
-              ))}
+              {navItems.map((item, index) => {
+                if (item.toLowerCase() === "contact") {
+                  return (
+                    <a
+                      key={index}
+                      href="#contact"
+                      className="nav-hover-btn"
+                      onClick={e => {
+                        e.preventDefault();
+                        const el = document.getElementById("contact");
+                        if (el) {
+                          el.scrollIntoView({ behavior: "smooth" });
+                        }
+                      }}
+                    >
+                      {item}
+                    </a>
+                  );
+                }
+                return (
+                  <a
+                    key={index}
+                    href={`#${item.toLowerCase()}`}
+                    className="nav-hover-btn"
+                  >
+                    {item}
+                  </a>
+                );
+              })}
             </div>
 
             <button

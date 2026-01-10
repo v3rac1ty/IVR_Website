@@ -14,7 +14,7 @@ export const VideoProvider = ({ children }) => {
   const [currentVideoSrc, setCurrentVideoSrc] = useState('videos/hero-1.mp4');
   const [currentVideoTime, setCurrentVideoTime] = useState(0);
   const [mainVideoRef, setMainVideoRefState] = useState(null);
-  const [isAudioPlaying, setIsAudioPlaying] = useState(false);
+  const [isAudioPlaying, setIsAudioPlaying] = useState(true);
 
   const updateCurrentVideo = (src) => {
     setCurrentVideoSrc(src);

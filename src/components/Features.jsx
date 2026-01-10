@@ -148,7 +148,7 @@ const Features = () => {
       }
     );
 
-    // Zigma card animation
+    // VEXU card animation
     gsap.fromTo(zigmaRef.current,
       {
         opacity: 0,
@@ -170,7 +170,7 @@ const Features = () => {
       }
     );
 
-    // Nexus card animation
+    // R&D Mechanical card animation
     gsap.fromTo(nexusRef.current,
       {
         opacity: 0,
@@ -192,7 +192,7 @@ const Features = () => {
       }
     );
 
-    // Azul card animation
+    // R&D Software card animation
     gsap.fromTo(azulRef.current,
       {
         opacity: 0,
@@ -321,10 +321,10 @@ const Features = () => {
               src="videos/feature-2.mp4"
               title={
                 <>
-                  zig<b>m</b>a
+                  VEX<b>U</b>
                 </>
               }
-              description="An anime and gaming-inspired NFT collection - the IP primed for expansion."
+              description="Our competitive collegiate VEX U team, designing and building advanced robots for international competition."
               isComingSoon
             />
           </BentoTilt>
@@ -334,10 +334,10 @@ const Features = () => {
               src="videos/feature-3.mp4"
               title={
                 <>
-                  n<b>e</b>xus
+                  R&D <b>Mechanical</b>
                 </>
               }
-              description="A gamified social hub, adding a new dimension of play to social interaction for Web3 communities."
+              description="Mechanical research and development—prototyping, CAD, and fabrication for next-generation robotics."
               isComingSoon
             />
           </BentoTilt>
@@ -347,16 +347,16 @@ const Features = () => {
               src="videos/feature-4.mp4"
               title={
                 <>
-                  az<b>u</b>l
+                  R&D <b>Software</b>
                 </>
               }
-              description="A cross-world AI Agent - elevating your gameplay to be more fun and productive."
+              description="Software research and development—autonomous code, control systems, and AI for robotics innovation."
               isComingSoon
             />
           </BentoTilt>
 
           <BentoTilt ref={moreComingRef} className="bento-tilt_2">
-            <div className="flex size-full flex-col justify-between bg-violet-300 p-5">
+            <div className="flex size-full flex-col justify-between !bg-[#FF5F05] p-5">
               <h1 className="bento-title special-font max-w-64 text-black">
                 M<b>o</b>re co<b>m</b>ing s<b>o</b>on.
               </h1>
