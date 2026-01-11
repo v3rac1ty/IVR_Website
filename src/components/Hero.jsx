@@ -23,7 +23,7 @@ const HERO_VIDEO_LINKS = {
   4: "https://youtu.be/Ctw2Fyd9iS0",
 };
 
-// Video thumbnails (leave empty to use video's first frame)
+// Video thumbnails (leave empty to use video's poster frame)
 // Example: 1: "/img/hero-thumb-1.webp"
 const HERO_VIDEO_THUMBNAILS = {
   1: "",
@@ -34,11 +34,11 @@ const HERO_VIDEO_THUMBNAILS = {
 
 // Video poster frame times in seconds (used if no thumbnail image provided)
 // Example: 1: 2.5 (shows frame at 2.5 seconds)
-// Leave as 0 or empty to use first frame
+// Leave as 0 or empty to use first frame (thumbnail overrides this)
 const HERO_VIDEO_POSTER_TIMES = {
   1: 0,
   2: 0,
-  3: 115,
+  3: 100,
   4: 0,
 };
 
@@ -395,13 +395,13 @@ const Hero = () => {
         </div>
 
         <h1 className="special-font hero-heading absolute bottom-5 right-5 z-40 text-blue-75">
-          R<b>O</b>B<b>O</b>TICS
+          ROBOTICS
         </h1>
 
         <div className="absolute left-0 top-0 z-40 size-full">
           <div className="mt-24 px-5 sm:px-10">
             <h1 className="special-font hero-heading text-blue-100">
-              Reinve<b>n</b>t
+              Reinvent
             </h1>
 
             <p className="mb-5 max-w-64 font-robert-regular text-blue-100">
@@ -421,11 +421,11 @@ const Hero = () => {
       </div>
 
       <h1 className="special-font hero-heading absolute bottom-5 right-5 text-black">
-        R<b>O</b>B<b>O</b>TICS
+        ROBOTICS
       </h1>
 
       <h1 className="special-font hero-heading absolute top-24 left-5 sm:left-10 text-black">
-        Reinve<b>n</b>t
+        Reinvent
       </h1>
     </div>
   );

@@ -37,21 +37,28 @@ const Contact = () => {
 
         <div className="relative z-20 flex flex-col items-center text-center">
           <p className="mb-10 font-general text-[10px] uppercase">
-            Join Zentry
-          </p>
+              Sponsor Illini VEX
+            </p>
 
-          <AnimatedTitle
-            title="let&#39;s b<b>u</b>ild the <br /> new era of <br /> g<b>a</b>ming t<b>o</b>gether."
-            className="special-font !md:text-[6.2rem] w-full font-zentry !text-5xl !font-black !leading-[.9]"
-          />
+            <AnimatedTitle
+              title="support the <br /> next generation of <br /> roboticists"
+              className="special-font !md:text-[5.2rem] w-full font-zentry !text-4xl !font-black !leading-[.95]"
+            />
 
-          <Button
-            title="contact us"
-            containerClass="mt-10 cursor-pointer"
-            onClick={() => setOpen((s) => !s)}
-          />
+            <p className="mt-6 max-w-xl text-center text-sm text-blue-50">
+              Partner with Illini VEX Robotics to equip students with the tools,
+              mentorship, and travel support they need to compete and learn.
+              Sponsorship helps fund equipment, competition fees, travel,
+              and outreach programs that grow STEM opportunities across Illinois.
+            </p>
 
-          <div
+            <Button
+              title="contact us"
+              containerClass="mt-8 cursor-pointer"
+              onClick={() => setOpen((s) => !s)}
+            />
+
+            <div
             className={`mt-8 w-full overflow-hidden transition-all duration-500 ${
               open ? "max-h-[700px] opacity-100" : "max-h-0 opacity-0"
             }`}
@@ -86,7 +93,7 @@ const ContactForm = ({ onClose }) => {
       formData.append("subject", subject);
       formData.append("message", message);
 
-      const res = await fetch("https://formsubmit.co/ajax/vexuiuc@gmail.com", {
+      const res = await fetch("https://formsubmit.co/ajax/60d5184cffd06c5c654909b93314e04c", {
         method: "POST",
         body: formData,
         headers: {

@@ -71,7 +71,7 @@ const About = () => {
         </p>
 
         <AnimatedTitle
-          title="Buil<b>d</b> the future of <br /> r<b>o</b>botics innovation"
+          title="Build the future of <br /> robotics innovation"
           containerClass="mt-5 !text-black text-center"
         />
 

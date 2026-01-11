@@ -20,7 +20,7 @@ const ContactModal = ({ open, onClose }) => {
       formData.append("subject", subject);
       formData.append("message", message);
 
-      const res = await fetch("https://formsubmit.co/ajax/vexuiuc@gmail.com", {
+      const res = await fetch("https://formsubmit.co/ajax/60d5184cffd06c5c654909b93314e04c", {
         method: "POST",
         body: formData,
         headers: {

@@ -1,11 +1,110 @@
 import gsap from "gsap";
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 
 import Button from "./Button";
 import AnimatedTitle from "./AnimatedTitle";
 
+// ==========================================
+// EVENT CONFIGURATION - Edit dates here
+// ==========================================
+const EVENTS = [
+  {
+    level: "VURC", // Competition level: V5RC or VURC
+    name: "Cornfield Clash",
+    date: "2026-03-15T09:00:00", // Format: YYYY-MM-DDTHH:MM:SS
+    robotEventsUrl: "https://www.robotevents.com/robot-competitions/vex-robotics-competition",
+  },
+  {
+    level: "V5RC", // Competition level: V5RC or VURC
+    name: "Cornfield Clash Jr",
+    date: "2026-03-14T09:00:00",
+    robotEventsUrl: "https://www.robotevents.com/robot-competitions/vex-robotics-competition",
+  },
+];
+// ==========================================
+
+const useCountdown = (targetDate) => {
+  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+
+  useEffect(() => {
+    const calculateTimeLeft = () => {
+      const difference = new Date(targetDate) - new Date();
+      if (difference > 0) {
+        setTimeLeft({
+          days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+          hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
+          minutes: Math.floor((difference / 1000 / 60) % 60),
+          seconds: Math.floor((difference / 1000) % 60),
+        });
+      } else {
+        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+      }
+    };
+
+    calculateTimeLeft();
+    const timer = setInterval(calculateTimeLeft, 1000);
+    return () => clearInterval(timer);
+  }, [targetDate]);
+
+  return timeLeft;
+};
+
+const CountdownTimer = ({ event }) => {
+  const timeLeft = useCountdown(event.date);
+  const eventDate = new Date(event.date);
+  const isPast = new Date() > eventDate;
+
+  return (
+    <div className="flex flex-col items-center rounded-lg bg-[#13294B] p-4">
+      <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-[#FF5F05]">{event.level}</p>
+      <h3 className="mb-3 text-lg font-bold text-[#FF5F05]">{event.name}</h3>
+      <p className="mb-2 text-sm text-gray-300">
+        {eventDate.toLocaleDateString("en-US", {
+          weekday: "long",
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        })}
+      </p>
+      {isPast ? (
+        <p className="text-sm text-green-400">Event Completed!</p>
+      ) : (
+        <div className="flex gap-3">
+          <TimeUnit value={timeLeft.days} label="Days" />
+          <TimeUnit value={timeLeft.hours} label="Hrs" />
+          <TimeUnit value={timeLeft.minutes} label="Min" />
+          <TimeUnit value={timeLeft.seconds} label="Sec" />
+        </div>
+      )}
+      <a
+        href={event.robotEventsUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="mt-3 rounded bg-[#FF5F05] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#e5540a]"
+      >
+        View on Robot Events
+      </a>
+    </div>
+  );
+};
+
+const TimeUnit = ({ value, label }) => (
+  <div className="flex flex-col items-center">
+    <span
+      className="text-2xl font-bold text-white font-mono tabular-nums leading-none text-center"
+      style={{ minWidth: "3ch" }}
+    >
+      {String(value).padStart(2, "0")}
+    </span>
+    <span className="text-xs text-gray-400">{label}</span>
+  </div>
+);
+
 const FloatingImage = () => {
   const frameRef = useRef(null);
+  const baseRotateX = 8; // slight tilt inward by default
+  const baseRotateY = 0;
+  const [open, setOpen] = useState(false);
 
   const handleMouseMove = (e) => {
     const { clientX, clientY } = e;
@@ -20,8 +119,8 @@ const FloatingImage = () => {
     const centerX = rect.width / 2;
     const centerY = rect.height / 2;
 
-    const rotateX = ((yPos - centerY) / centerY) * -10;
-    const rotateY = ((xPos - centerX) / centerX) * 10;
+    const rotateX = baseRotateX + ((yPos - centerY) / centerY) * -10;
+    const rotateY = baseRotateY + ((xPos - centerX) / centerX) * 10;
 
     gsap.to(element, {
       duration: 0.3,
@@ -38,23 +137,34 @@ const FloatingImage = () => {
     if (element) {
       gsap.to(element, {
         duration: 0.3,
-        rotateX: 0,
-        rotateY: 0,
+        rotateX: baseRotateX,
+        rotateY: baseRotateY,
         ease: "power1.inOut",
       });
     }
   };
 
+  // Ensure the image starts at the base rotation on mount
+  useEffect(() => {
+    if (frameRef.current) {
+      gsap.set(frameRef.current, {
+        rotateX: baseRotateX,
+        rotateY: baseRotateY,
+        transformPerspective: 500,
+      });
+    }
+  }, [baseRotateX, baseRotateY]);
+
   return (
     <div id="story" className="min-h-dvh w-screen bg-black text-blue-50">
       <div className="flex size-full flex-col items-center py-10 pb-24">
         <p className="font-general text-sm uppercase md:text-[10px]">
-          the multiversal ip world
+          Illinois&#39; Premier VEX Competition
         </p>
 
         <div className="relative size-full">
           <AnimatedTitle
-            title="the st<b>o</b>ry of <br /> a hidden real<b>m</b>"
+            title="For young <br /> engineers & innovators"
             containerClass="mt-5 pointer-events-none mix-blend-difference relative z-10"
           />
 
@@ -103,22 +213,44 @@ const FloatingImage = () => {
           </div>
         </div>
 
-        <div className="-mt-80 flex w-full justify-center md:-mt-64 md:me-44 md:justify-end">
-          <div className="flex h-full w-fit flex-col items-center md:items-start">
-            <p className="mt-3 max-w-sm text-center font-circular-web text-violet-50 md:text-start">
+        <div className="-mt-80 flex w-full justify-center md:-mt-85">
+          <div className="flex h-full w-fit flex-col items-center">
+            <p className="mt-3 max-w-sm text-center font-circular-web text-violet-50">
               Cornfield Clash is Illini VEX Robotics' premier competition,
               welcoming middle school, high school, and university teams
-              (CC &amp; CC Jr). We provide a hands-on platform to learn,
-              design, and compete—helping students grow their skills and
+              (CC &amp; CC Jr).
+              We provide a hands-on platform to learn,
+              design, and compete, helping students grow their skills and
               advance to international-level events while strengthening the
               Illinois VEX community.
             </p>
 
             <Button
               id="realm-btn"
-              title="discover prologue"
-              containerClass="mt-5"
+              title="discover events"
+              containerClass="mt-5 cursor-pointer"
+              onClick={() => setOpen((s) => !s)}
             />
+
+            <div
+              className={`mt-6 w-full overflow-hidden transition-all duration-500 ${
+                open ? "max-h-[600px] opacity-100" : "max-h-0 opacity-0"
+              }`}
+            >
+              <div className="rounded-lg bg-black/80 p-6 backdrop-blur-sm">
+                <h2 className="mb-4 text-center text-xl font-bold text-[#FF5F05]">
+                  Upcoming Events
+                </h2>
+                <div className="flex flex-col items-center gap-4 md:flex-row md:justify-center">
+                  {EVENTS.map((event, index) => (
+                    <CountdownTimer key={index} event={event} />
+                  ))}
+                </div>
+                <p className="mt-4 text-center text-xs text-gray-500">
+                  To update event dates, edit the EVENTS array in Story.jsx
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
