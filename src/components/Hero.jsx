@@ -115,24 +115,10 @@ const Hero = () => {
     return getThumbnail(index) || posterFrames[index] || undefined;
   };
 
-  // Set loading to false once the main video is ready to play
-  useEffect(() => {
-    const video = mainVideoRef.current;
-    if (!video) return;
-
-    const handleCanPlay = () => {
-      setLoading(false);
-    };
-
-    // If already ready, hide loading immediately
-    if (video.readyState >= 3) {
-      setLoading(false);
-      return;
-    }
-
-    video.addEventListener("canplay", handleCanPlay);
-    return () => video.removeEventListener("canplay", handleCanPlay);
-  }, []);
+  // Handle when main video is ready to play
+  const handleMainVideoCanPlay = () => {
+    setLoading(false);
+  };
 
   // Register the main video ref with context
   useEffect(() => {
@@ -205,61 +191,91 @@ const Hero = () => {
     () => {
       if (!hasClicked || !isNextVideoReady) return;
 
-      // Reset and prepare elements - keep them hidden until we're ready
-      gsap.set("#next-thumbnail", { 
-        visibility: "visible", 
-        opacity: 1, 
-        scale: 0.15,
-        width: "16rem",
-        height: "16rem"
-      });
-      gsap.set("#next-video", { 
-        visibility: "visible", 
-        opacity: 0, 
-        scale: 0.15,
-        width: "16rem",
-        height: "16rem"
-      });
-      
-      // Scale in thumbnail over the current video
-      gsap.to("#next-thumbnail", {
-        transformOrigin: "center center",
-        scale: 1,
-        width: "100%",
-        height: "100%",
-        duration: 1.1,
-        ease: "power2.inOut",
-        onComplete: () => {
-          // Start playing video behind thumbnail
-          nextVideoRef.current?.play?.();
-          // Update active video index NOW that the new video is playing (this syncs audio)
-          setActiveVideoIndex(currentIndex);
-          // Fade out thumbnail to reveal video
-          gsap.to("#next-thumbnail", {
-            opacity: 0,
-            duration: 0.5,
-            ease: "power2.out",
-            onComplete: () => {
-              setShowThumbnail(false);
-            }
-          });
-          gsap.to("#next-video", {
-            opacity: 1,
-            duration: 0.3,
-            ease: "power2.out",
-          });
-        }
-      });
-      
-      // Scale video along with thumbnail (but hidden)
-      gsap.to("#next-video", {
-        transformOrigin: "center center",
-        scale: 1,
-        width: "100%",
-        height: "100%",
-        duration: 1.1,
-        ease: "power2.inOut",
-      });
+      const hasThumbnail = !!getPosterSrc(currentIndex);
+
+      if (hasThumbnail) {
+        // With thumbnail: scale thumbnail, then fade to video
+        gsap.set("#next-thumbnail", { 
+          visibility: "visible", 
+          opacity: 1, 
+          scale: 0.15,
+          width: "16rem",
+          height: "16rem"
+        });
+        gsap.set("#next-video", { 
+          visibility: "visible", 
+          opacity: 0, 
+          scale: 0.15,
+          width: "16rem",
+          height: "16rem"
+        });
+        
+        // Scale in thumbnail over the current video
+        gsap.to("#next-thumbnail", {
+          transformOrigin: "center center",
+          scale: 1,
+          width: "100%",
+          height: "100%",
+          duration: 1.1,
+          ease: "power2.inOut",
+          onComplete: () => {
+            // Start playing video behind thumbnail
+            nextVideoRef.current?.play?.();
+            // Update active video index NOW that the new video is playing (this syncs audio)
+            setActiveVideoIndex(currentIndex);
+            // Fade out thumbnail to reveal video
+            gsap.to("#next-thumbnail", {
+              opacity: 0,
+              duration: 0.5,
+              ease: "power2.out",
+              onComplete: () => {
+                setShowThumbnail(false);
+              }
+            });
+            gsap.to("#next-video", {
+              opacity: 1,
+              duration: 0.3,
+              ease: "power2.out",
+            });
+          }
+        });
+        
+        // Scale video along with thumbnail (but hidden)
+        gsap.to("#next-video", {
+          transformOrigin: "center center",
+          scale: 1,
+          width: "100%",
+          height: "100%",
+          duration: 1.1,
+          ease: "power2.inOut",
+        });
+      } else {
+        // No thumbnail: scale video directly
+        gsap.set("#next-video", { 
+          visibility: "visible", 
+          opacity: 1, 
+          scale: 0.15,
+          width: "16rem",
+          height: "16rem"
+        });
+        
+        // Start playing immediately so we see the video while scaling
+        nextVideoRef.current?.play?.();
+        
+        gsap.to("#next-video", {
+          transformOrigin: "center center",
+          scale: 1,
+          width: "100%",
+          height: "100%",
+          duration: 1.1,
+          ease: "power2.inOut",
+          onComplete: () => {
+            // Update active video index after scale completes
+            setActiveVideoIndex(currentIndex);
+            setShowThumbnail(false);
+          }
+        });
+      }
     },
     {
       dependencies: [currentIndex, hasClicked, isNextVideoReady],
@@ -374,8 +390,7 @@ const Hero = () => {
             loop
             muted
             className="absolute left-0 top-0 size-full object-cover object-center bg-black"
-            onLoadedData={handleVideoLoad}
-            onPlay={handleVideoPlay}
+            onCanPlay={handleMainVideoCanPlay}
           />
         </div>
 
