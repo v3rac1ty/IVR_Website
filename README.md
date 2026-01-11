@@ -1,223 +1,65 @@
-<div align="center">
-  <br />
-    <a href="https://youtu.be/zA9r5zTllx4" target="_blank">
-      <img src="https://github.com/user-attachments/assets/ab600f24-f4d9-4cef-8f1e-3fd9194afb30" alt="Project Banner">
-    </a>
-  <br />
+\# Illini VEX Robotics @ UIUC — Website
 
-  <div>
-    <img src="https://img.shields.io/badge/-React_JS-black?style=for-the-badge&logoColor=white&logo=react&color=61DAFB" alt="react.js" />
-    <img src="https://img.shields.io/badge/-GSAP-black?style=for-the-badge&logoColor=white&logo=greensock&color=88CE02" alt="greensock" />
-    <img src="https://img.shields.io/badge/-Tailwind_CSS-black?style=for-the-badge&logoColor=white&logo=tailwindcss&color=06B6D4" alt="tailwindcss" />
-  </div>
+Marketing + recruitment website for **Illini VEX Robotics (IVR)** at the University of Illinois Urbana-Champaign.
 
-  <h3 align="center">An Awwwards Winning Website</h3>
+This repo contains the front-end for our club site (hero videos, team overview, feature highlights, and a contact form).
 
-   <div align="center">
-     Build this project step by step with our detailed tutorial on <a href="https://www.youtube.com/@javascriptmastery/videos" target="_blank"><b>JavaScript Mastery</b></a> YouTube. Join the JSM family!
-    </div>
-</div>
+## What is Illini VEX Robotics?
 
-## 📋 <a name="table">Table of Contents</a>
+Illini VEX Robotics is a student organization at UIUC focused on building competitive VEX robots and growing the Illinois VEX community through engineering, outreach, and events.
 
-1. 🤖 [Introduction](#introduction)
-2. ⚙️ [Tech Stack](#tech-stack)
-3. 🔋 [Features](#features)
-4. 🤸 [Quick Start](#quick-start)
-5. 🕸️ [Snippets (Code to Copy)](#snippets)
-6. 🔗 [Assets](#links)
-7. 🚀 [More](#more)
+## Tech stack
 
-## ⚠️ Disclaimer
-
-All design credits go to **[Zentry](https://zentry.com/)**. This project is created purely for **educational purposes** and is not intended for commercial use or public deployment.
-
-
-## 🚨 Tutorial
-
-This repository contains the code corresponding to an in-depth tutorial available on our YouTube channel, <a href="https://www.youtube.com/@javascriptmastery/videos" target="_blank"><b>JavaScript Mastery</b></a>.
-
-If you prefer visual learning, this is the perfect resource for you. Follow our tutorial to learn how to build projects like these step-by-step in a beginner-friendly manner!
-
-<a href="https://youtu.be/zA9r5zTllx4" target="_blank"><img src="https://github.com/sujatagunale/EasyRead/assets/151519281/1736fca5-a031-4854-8c09-bc110e3bc16d" /></a>
-
-## <a name="introduction">🤖 Introduction</a>
-
-Build a visually captivating website inspired by **[Zentry](https://zentry.com/)**, featuring scroll-triggered animations, geometric transitions, and engaging video storytelling. Learn how to deliver a luxurious, modern feel, focusing on engaging UI/UX and smooth responsiveness, capturing the essence of what makes an Awwwards winner.
-
-If you're getting started and need assistance or face any bugs, join our active Discord community with over **47k+** members. It's a place where people help each other out.
-
-<a href="https://discord.com/invite/n6EdbFJ" target="_blank"><img src="https://github.com/sujatagunale/EasyRead/assets/151519281/618f4872-1e10-42da-8213-1d69e486d02e" /></a>
-
-## <a name="tech-stack">⚙️ Tech Stack</a>
-
-- GSAP
-- React.js
+- React + Vite
 - Tailwind CSS
+- GSAP (scroll + transition animations)
 
-## <a name="features">🔋 Features</a>
+## Running locally
 
-👉 **Scroll-Based Animations**: Dynamic animations triggered by scrolling for a more engaging user experience.
-
-👉 **Clip Path Shaped Animations**: Unique geometric transitions using CSS clip-paths to create visually stunning effects.
-
-👉 **3D Hover Effects**: Interactive 3D transformations that respond to user interactions for a modern feel.
-
-👉 **Video Transitions**: Seamlessly integrated video elements to enhance storytelling and flow.
-
-👉 **Smooth UI/UX**: Polished interfaces with buttery-smooth interactions for an intuitive user journey.
-
-👉 **Completely Responsive**: Flawless adaptation across all devices, ensuring a consistent experience.
-
-and many more, including code architecture and reusability
-
-## <a name="quick-start">🤸 Quick Start</a>
-
-Follow these steps to set up the project locally on your machine.
-
-**Prerequisites**
-
-Make sure you have the following installed on your machine:
-
-- [Git](https://git-scm.com/)
-- [Node.js](https://nodejs.org/en)
-- [npm](https://www.npmjs.com/) (Node Package Manager)
-
-**Cloning the Repository**
-
-```bash
-git clone https://github.com/adrianhajdin/award-winning-website.git
-cd award-winning-website
-```
-
-**Installation**
-
-Install the project dependencies using npm:
+Prereqs: Node.js + npm
 
 ```bash
 npm install
-```
-
-**Running the Project**
-
-```bash
 npm run dev
 ```
 
-Open [http://localhost:5173](http://localhost:5173) in your browser to view the project.
+Then open http://localhost:5173
 
-## <a name="snippets">🕸️ Snippets</a>
+Build + preview:
 
-<details>
-<summary><code>index.css</code></summary>
+```bash
+npm run build
+npm run preview
+```
 
-```css
-@import url("https://fonts.cdnfonts.com/css/general-sans");
+Lint:
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+```bash
+npm run lint
+```
 
-body {
-  width: 100dvw;
-  overflow-x: hidden;
-  background-color: #dfdff0;
-  font-family: "General Sans", sans-serif;
-}
+## Content you’ll likely edit
 
-@layer base {
-  @font-face {
-    font-family: "circular-web";
-    src: url("/fonts/circularweb-book.woff2") format("woff2");
-  }
+- Hero videos live in `public/videos/hero-*.mp4`
+- Hero thumbnails live in `public/img/hero-*.png`
+  - Hero 2 and 4 use custom thumbnails (`/img/hero-2.png`, `/img/hero-4.png`)
+  - Hero 3 auto-generates a mid-video thumbnail because the first frame is black
+- Images live in `public/img/`
+- Fonts live in `public/fonts/`
 
-  @font-face {
-    font-family: "general";
-    src: url("/fonts/general.woff2") format("woff2");
-  }
+## Contact form
 
-  @font-face {
-    font-family: "robert-medium";
-    src: url("/fonts/robert-medium.woff2") format("woff2");
-  }
+The site contact form sends submissions to `vexuiuc@gmail.com` via FormSubmit.
 
-  @font-face {
-    font-family: "robert-regular";
-    src: url("/fonts/robert-regular.woff2") format("woff2");
-  }
+If you need to change the destination email or add extra fields, update the FormSubmit endpoint usage in `src/components/Contact.jsx`.
 
-  @font-face {
-    font-family: "zentry";
-    src: url("/fonts/zentry-regular.woff2") format("woff2");
-  }
-}
+## Notes on video/audio autoplay
 
-@layer utilities {
-  .border-hsla {
-    @apply border border-white/20;
-  }
+Modern browsers commonly block autoplay **with sound** until a user interacts with the page. The site attempts to enable audio on load, but still relies on a user gesture fallback for reliability.
 
-  .nav-hover-btn {
-    @apply relative ms-10 font-general text-xs uppercase text-blue-50 after:absolute after:-bottom-0.5 after:left-0 after:h-[2px] after:w-full after:origin-bottom-right after:scale-x-0 after:bg-neutral-800 after:transition-transform after:duration-300 after:ease-[cubic-bezier(0.65_0.05_0.36_1)] hover:after:origin-bottom-left hover:after:scale-x-100 dark:after:bg-white cursor-pointer;
-  }
+## Acknowledgements
 
-  .floating-nav {
-    @apply bg-black rounded-lg border;
-  }
-
-  .absolute-center {
-    @apply absolute top-1/2 left-1/2 translate-x-[-50%] translate-y-[-50%];
-  }
-
-  .flex-center {
-    @apply flex justify-center items-center;
-  }
-
-  .mask-clip-path {
-    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
-  }
-
-  .special-font b {
-    font-family: "Zentry";
-    font-feature-settings: "ss01" on;
-  }
-
-  .hero-heading {
-    @apply uppercase font-zentry font-black text-5xl sm:right-10 sm:text-7xl md:text-9xl lg:text-[12rem];
-  }
-
-  .about-subtext {
-    @apply absolute bottom-[-80dvh] left-1/2 w-full max-w-96 -translate-x-1/2 text-center font-circular-web text-lg md:max-w-[34rem];
-  }
-
-  .about-image {
-    @apply absolute left-1/2 top-0 z-20 h-[60vh] w-96 origin-center -translate-x-1/2 overflow-hidden rounded-3xl md:w-[30vw];
-  }
-
-  .animated-title {
-    @apply flex flex-col gap-1 text-7xl uppercase leading-[.8] text-white sm:px-32 md:text-[6rem];
-  }
-
-  .animated-word {
-    @apply special-font font-zentry font-black opacity-0;
-    transform: translate3d(10px, 51px, -60px) rotateY(60deg) rotateX(-40deg);
-    transform-origin: 50% 50% -150px !important;
-    will-change: opacity, transform;
-  }
-
-  .bento-tilt_1 {
-    @apply relative border-hsla col-span-2 overflow-hidden rounded-md transition-transform duration-300 ease-out;
-  }
-
-  .bento-tilt_2 {
-    @apply relative col-span-1 row-span-1 overflow-hidden rounded-md transition-transform duration-300 ease-out;
-  }
-
-  .bento-title {
-    @apply uppercase md:text-6xl text-4xl font-black font-zentry;
-  }
-
-  .story-img-container {
+The UI/animation structure started from an Awwwards-style template inspired by Zentry and tutorial content from JavaScript Mastery. The current content, branding, and assets are customized for Illini VEX Robotics.
     @apply relative md:h-dvh h-[90vh] w-full;
     filter: url("#flt_tag");
   }

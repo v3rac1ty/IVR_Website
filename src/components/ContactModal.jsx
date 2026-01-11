@@ -69,7 +69,7 @@ const ContactModal = ({ open, onClose }) => {
 
         <form onSubmit={submit} className="flex flex-col gap-3">
           <label className="flex flex-col">
-            <span className="text-sm text-gray-700">Your email</span>
+            <span className="text-sm text-gray-700">Your Email</span>
             <input
               required
               type="email"

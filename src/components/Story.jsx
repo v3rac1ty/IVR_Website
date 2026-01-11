@@ -67,8 +67,8 @@ const FloatingImage = () => {
                   onMouseLeave={handleMouseLeave}
                   onMouseUp={handleMouseLeave}
                   onMouseEnter={handleMouseLeave}
-                  src="/img/entrance.webp"
-                  alt="entrance.webp"
+                  src="/img/Vex_CC_Jr.png"
+                  alt="Vex_CC_Jr.png"
                   className="object-contain"
                 />
               </div>
@@ -106,9 +106,12 @@ const FloatingImage = () => {
         <div className="-mt-80 flex w-full justify-center md:-mt-64 md:me-44 md:justify-end">
           <div className="flex h-full w-fit flex-col items-center md:items-start">
             <p className="mt-3 max-w-sm text-center font-circular-web text-violet-50 md:text-start">
-              Where realms converge, lies Zentry and the boundless pillar.
-              Discover its secrets and shape your fate amidst infinite
-              opportunities.
+              Cornfield Clash is Illini VEX Robotics' premier competition,
+              welcoming middle school, high school, and university teams
+              (CC &amp; CC Jr). We provide a hands-on platform to learn,
+              design, and compete—helping students grow their skills and
+              advance to international-level events while strengthening the
+              Illinois VEX community.
             </p>
 
             <Button

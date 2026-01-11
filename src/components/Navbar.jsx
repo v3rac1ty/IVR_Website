@@ -180,8 +180,10 @@ const NavBar = () => {
             </div>
 
             <button
+              type="button"
               onClick={toggleAudioIndicator}
-              className="ml-10 flex items-center space-x-0.5"
+              aria-label={isAudioPlaying ? "Pause audio" : "Play audio"}
+              className="ml-10 flex items-center space-x-0.5 rounded-full p-3 min-h-11 min-w-11"
             >
               <audio
                 ref={audioElementRef}

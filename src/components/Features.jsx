@@ -50,7 +50,70 @@ export const BentoTilt = forwardRef(({ children, className = "" }, ref) => {
   );
 });
 
-export const BentoCard = ({ src, title, description, isComingSoon }) => {
+// Smooth looping video component - crossfades to avoid jump at loop point
+const SmoothLoopVideo = ({ src, className }) => {
+  const videoARef = useRef(null);
+  const videoBRef = useRef(null);
+  const [activeVideo, setActiveVideo] = useState('A');
+  const crossfadeDuration = 0.8; // seconds before end to start crossfade
+
+  useEffect(() => {
+    const videoA = videoARef.current;
+    const videoB = videoBRef.current;
+    if (!videoA || !videoB) return;
+
+    let animationFrame;
+    
+    const checkTime = () => {
+      const currentVideo = activeVideo === 'A' ? videoA : videoB;
+      const nextVideo = activeVideo === 'A' ? videoB : videoA;
+      
+      if (currentVideo.duration && currentVideo.currentTime >= currentVideo.duration - crossfadeDuration) {
+        // Start crossfade
+        nextVideo.currentTime = 0;
+        nextVideo.play();
+        
+        // Fade out current, fade in next
+        gsap.to(currentVideo, { opacity: 0, duration: crossfadeDuration, ease: "power2.inOut" });
+        gsap.to(nextVideo, { opacity: 1, duration: crossfadeDuration, ease: "power2.inOut" });
+        
+        setActiveVideo(activeVideo === 'A' ? 'B' : 'A');
+      }
+      
+      animationFrame = requestAnimationFrame(checkTime);
+    };
+
+    animationFrame = requestAnimationFrame(checkTime);
+    
+    return () => {
+      if (animationFrame) cancelAnimationFrame(animationFrame);
+    };
+  }, [activeVideo]);
+
+  return (
+    <>
+      <video
+        ref={videoARef}
+        src={src}
+        muted
+        autoPlay
+        playsInline
+        className={className}
+        style={{ opacity: 1 }}
+      />
+      <video
+        ref={videoBRef}
+        src={src}
+        muted
+        playsInline
+        className={className}
+        style={{ opacity: 0 }}
+      />
+    </>
+  );
+};
+
+export const BentoCard = ({ src, title, description, isComingSoon, smoothLoop = false }) => {
   const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
   const [hoverOpacity, setHoverOpacity] = useState(0);
   const hoverButtonRef = useRef(null);
@@ -70,13 +133,20 @@ export const BentoCard = ({ src, title, description, isComingSoon }) => {
 
   return (
     <div className="relative size-full">
-      <video
-        src={src}
-        loop
-        muted
-        autoPlay
-        className="absolute left-0 top-0 size-full object-cover object-center"
-      />
+      {smoothLoop ? (
+        <SmoothLoopVideo
+          src={src}
+          className="absolute left-0 top-0 size-full object-cover object-center"
+        />
+      ) : (
+        <video
+          src={src}
+          loop
+          muted
+          autoPlay
+          className="absolute left-0 top-0 size-full object-cover object-center"
+        />
+      )}
       <div className="relative z-10 flex size-full flex-col justify-between p-5 text-blue-50">
         <div>
           <h1 className="bento-title special-font">{title}</h1>
@@ -304,7 +374,8 @@ const Features = () => {
 
         <BentoTilt ref={radiantRef} className="border-hsla relative mb-7 h-96 w-full overflow-hidden rounded-md md:h-[65vh]">
           <BentoCard
-            src="videos/feature-1.mp4"
+            src="videos/bet.mp4"
+            smoothLoop
             title={
               <>
                 radia<b>n</b>t
