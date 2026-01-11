@@ -41,8 +41,8 @@ const Contact = () => {
             </p>
 
             <AnimatedTitle
-              title="support the <br /> next generation of <br /> roboticists"
-              className="special-font !md:text-[5.2rem] w-full font-zentry !text-4xl !font-black !leading-[.95]"
+              title="support the <br /> next generation of <br /> innovators"
+              className="special-font !md:text-[5.2rem] w-full font-title !text-4xl !font-black !leading-[.95]"
             />
 
             <p className="mt-6 max-w-xl text-center text-sm text-blue-50">
@@ -59,10 +59,12 @@ const Contact = () => {
             />
 
             <div
-            className={`mt-8 w-full overflow-hidden transition-all duration-500 ${
-              open ? "max-h-[700px] opacity-100" : "max-h-0 opacity-0"
-            }`}
-          >
+              className={`mt-8 w-full overflow-hidden transition-all duration-700 ease-in-out ${
+                open
+                  ? "max-h-[700px] opacity-100 translate-y-0 scale-100"
+                  : "max-h-0 opacity-0 -translate-y-2 scale-[0.99]"
+              }`}
+            >
             <div className="rounded-lg bg-white p-6 text-black shadow-lg">
               <ContactForm onClose={() => setOpen(false)} />
             </div>

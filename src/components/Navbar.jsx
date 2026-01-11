@@ -7,7 +7,13 @@ import { TiLocationArrow } from "react-icons/ti";
 import Button from "./Button";
 import { useVideo } from "../contexts/VideoContext";
 
-const navItems = ["Nexus", "Vault", "Prologue", "About", "Contact"];
+const navItems = [
+  { label: "About", href: "about" },
+  { label: "Departments", href: "departments" },
+  { label: "Events", href: "story" },
+  { label: "Sponsors", href: "sponsors" },
+  { label: "Contact", href: "contact" }
+];
 
 const NavBar = () => {
   // State for visual indicator
@@ -135,7 +141,7 @@ const NavBar = () => {
         <nav className="flex size-full items-center justify-between p-4">
           {/* Logo and Product button */}
           <div className="flex items-center gap-7">
-            <img src="/img/logo.png" alt="logo" className="w-10" />
+            <img src="/img/logo.png" alt="logo" className="w-10" loading="eager" decoding="async" />
 
             <a
               id="product-button"
@@ -159,35 +165,22 @@ const NavBar = () => {
           {/* Navigation Links and Audio Button */}
           <div className="flex h-full items-center">
             <div className="hidden md:block">
-              {navItems.map((item, index) => {
-                if (item.toLowerCase() === "contact") {
-                  return (
-                    <a
-                      key={index}
-                      href="#contact"
-                      className="nav-hover-btn"
-                      onClick={e => {
-                        e.preventDefault();
-                        const el = document.getElementById("contact");
-                        if (el) {
-                          el.scrollIntoView({ behavior: "smooth" });
-                        }
-                      }}
-                    >
-                      {item}
-                    </a>
-                  );
-                }
-                return (
-                  <a
-                    key={index}
-                    href={`#${item.toLowerCase()}`}
-                    className="nav-hover-btn"
-                  >
-                    {item}
-                  </a>
-                );
-              })}
+              {navItems.map((item, index) => (
+                <a
+                  key={index}
+                  href={`#${item.href}`}
+                  className="nav-hover-btn"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    const el = document.getElementById(item.href);
+                    if (el) {
+                      el.scrollIntoView({ behavior: "smooth" });
+                    }
+                  }}
+                >
+                  {item.label}
+                </a>
+              ))}
             </div>
 
             <button

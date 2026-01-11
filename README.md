@@ -47,6 +47,17 @@ npm run lint
 - Images live in `public/img/`
 - Fonts live in `public/fonts/`
 
+### Quick data edits (content without touching layout)
+
+- **Events (Upcoming Events accordion)**: edit the `EVENTS` array in `src/components/Story.jsx` (name, date, location, robotEventsUrl). Adding/removing items automatically updates the countdown list.
+- **Sponsors (Orange & Blue / Platinum / Bronze)**: edit `SPONSOR_TIERS` in `src/components/Sponsors.jsx`.
+  - To use a logo: set `logo: "/img/sponsors/your-logo.png"`.
+  - To force text-only: set `textOnly: true` or leave `logo` empty.
+  - Add/remove sponsors by editing the array items; layout centers automatically.
+- **Feature cards (Departments / VEX U / R&D)**: update `cardData` in `src/components/Features.jsx` (titles, descriptions, expandedContent, video srcs).
+- **Hero external video links**: update `HERO_VIDEO_LINKS` in `src/components/Hero.jsx` for the “Watch Video” button.
+- **Contact form endpoint**: update the FormSubmit endpoint in `src/components/Contact.jsx` if the destination email changes.
+
 ## Contact form
 
 The site contact form sends submissions to `vexuiuc@gmail.com` via FormSubmit.

@@ -51,7 +51,6 @@ const About = () => {
       }
     );
 
-    // Disable the fade/scale animation when the clip expansion starts
     ScrollTrigger.create({
       trigger: "#clip",
       start: "center center",
@@ -76,9 +75,9 @@ const About = () => {
         />
 
         <div className="about-subtext">
-          <p>From design to competition—engineering excellence in every build</p>
+          <p>From design to competition—engineering excellence in every build.</p>
           <p className="text-gray-500">
-            Illini VEX Robotics brings together talented engineers and innovators to push the boundaries of robotics and compete at the highest levels
+            Illini VEX Robotics brings together talented engineers and innovators to push the boundaries of robotics and compete at the highest levels.
           </p>
         </div>
       </div>
@@ -90,6 +89,8 @@ const About = () => {
             src="img/about.webp"
             alt="Background"
             className="absolute left-0 top-0 size-full object-cover"
+            loading="lazy"
+            decoding="async"
           />
         </div>
       </div>

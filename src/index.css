@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;600;700&family=Archivo+Black&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;600;700&family=Orbitron:wght@400;700;900&family=Russo+One&display=swap");
 
 @tailwind base;
 @tailwind components;
@@ -40,12 +40,12 @@ body {
   }
 
   .special-font b {
-    font-family: "Archivo Black";
+    font-family: "Orbitron", sans-serif;
     font-feature-settings: "ss01" on;
   }
 
   .hero-heading {
-    @apply uppercase font-zentry font-black text-5xl sm:right-10 sm:text-7xl md:text-9xl lg:text-[12rem];
+    @apply uppercase font-title font-black text-4xl sm:right-10 sm:text-6xl md:text-8xl lg:text-[10rem];
   }
 
   .about-subtext {
@@ -61,7 +61,7 @@ body {
   }
 
   .animated-word {
-    @apply special-font font-zentry font-black opacity-0;
+    @apply special-font font-title font-black opacity-0;
     transform: translate3d(10px, 51px, -60px) rotateY(60deg) rotateX(-40deg);
     transform-origin: 50% 50% -150px !important;
     will-change: opacity, transform;
@@ -76,7 +76,7 @@ body {
   }
 
   .bento-title {
-    @apply uppercase md:text-6xl text-4xl font-black font-zentry;
+    @apply uppercase md:text-6xl text-4xl font-black font-title;
   }
 
   .story-img-container {
@@ -85,7 +85,7 @@ body {
   }
 
   .story-img-mask {
-    @apply absolute left-1/2 top-[32%] -translate-x-1/2 -translate-y-1/2 overflow-hidden;
+    @apply absolute left-1/2 top-[37%] -translate-x-1/2 -translate-y-1/2 overflow-hidden;
     @apply w-[100vw] h-[100vw] max-w-[1800px] max-h-[1800px] md:w-[95vh] md:h-[95vh];
     clip-path: inset(0 round 12px);
   }

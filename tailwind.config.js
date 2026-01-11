@@ -4,7 +4,7 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        zentry: ["Archivo Black", "sans-serif"],
+        title: ["Russo One", "sans-serif"],
         general: ["Manrope", "sans-serif"],
         "circular-web": ["Manrope", "sans-serif"],
         "robert-medium": ["Manrope", "sans-serif"],

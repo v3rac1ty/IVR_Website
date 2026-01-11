@@ -1,21 +1,26 @@
-import { FaDiscord, FaTwitter, FaYoutube, FaMedium } from "react-icons/fa";
+import {
+  FaDiscord,
+  FaYoutube,
+  FaInstagram,
+  FaTiktok,
+  FaLinkedin,
+} from "react-icons/fa";
 
 const socialLinks = [
   { href: "https://discord.com", icon: <FaDiscord /> },
-  { href: "https://twitter.com", icon: <FaTwitter /> },
-  { href: "https://youtube.com", icon: <FaYoutube /> },
-  { href: "https://medium.com", icon: <FaMedium /> },
+  { href: "https://www.youtube.com/@illinivexrobotics", icon: <FaYoutube /> },
+  { href: "https://www.instagram.com/illinivexrobotics/", icon: <FaInstagram /> },
+  { href: "https://www.linkedin.com/company/illini-vex-robotics/", icon: <FaLinkedin /> },
+  { href: "https://www.tiktok.com/@illini.vex.roboti", icon: <FaTiktok /> },
 ];
 
 const Footer = () => {
   return (
     <footer className="w-screen bg-[#13294B] py-4 text-[#FF5F05]">
-      <div className="container mx-auto flex flex-col items-center justify-between gap-4 px-4 md:flex-row">
-        <p className="text-center text-sm font-light md:text-left">
-          © ILLINI VEX Robotics 2025. All rights reserved.
-        </p>
+      <div className="container mx-auto grid grid-cols-1 items-center gap-4 px-4 md:grid-cols-3">
+        <div className="hidden md:block" />
 
-        <div className="flex justify-center gap-4  md:justify-start">
+        <div className="flex w-full justify-center gap-4">
           {socialLinks.map((link, index) => (
             <a
               key={index}
@@ -29,12 +34,11 @@ const Footer = () => {
           ))}
         </div>
 
-        <a
-          href="#privacy-policy"
-          className="text-center text-sm font-light hover:underline md:text-right"
-        >
-          Privacy Policy
-        </a>
+        <div className="flex w-full justify-center md:justify-end">
+          <p className="text-center text-sm font-light md:text-right">
+            © ILLINI VEX Robotics 2025. All rights reserved.
+          </p>
+        </div>
       </div>
     </footer>
   );

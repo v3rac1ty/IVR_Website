@@ -112,7 +112,8 @@ const Hero = () => {
 
   // Helper to get the best poster source (thumbnail > generated frame > undefined)
   const getPosterSrc = (index) => {
-    return getThumbnail(index) || posterFrames[index] || undefined;
+    // Prefer explicit thumbnail, then generated poster frame; fall back to a generic image
+    return getThumbnail(index) || posterFrames[index] || "/img/logo.png";
   };
 
   // Handle when main video is ready to play
@@ -340,11 +341,13 @@ const Hero = () => {
                     src={getPosterSrc(nextVideoIndex)}
                     alt={`Preview video ${nextVideoIndex}`}
                     className="size-64 origin-center scale-150 object-cover object-center bg-black"
+                    loading="lazy"
+                    decoding="async"
                   />
                 ) : (
                   <video
                     src={getVideoSrc(nextVideoIndex)}
-                    preload="auto"
+                    preload="metadata"
                     playsInline
                     loop
                     muted
@@ -384,7 +387,7 @@ const Hero = () => {
             ref={mainVideoRef}
             src={getVideoSrc(mainVideoIndex)}
             poster={getPosterSrc(mainVideoIndex)}
-            preload="auto"
+            preload="metadata"
             playsInline
             autoPlay
             loop

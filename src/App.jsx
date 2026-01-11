@@ -1,10 +1,12 @@
-import About from "./components/About";
 import Hero from "./components/Hero";
 import NavBar from "./components/Navbar";
-import Features from "./components/Features";
-import Story from "./components/Story";
-import Contact from "./components/Contact";
-import Footer from "./components/Footer";
+import { Suspense, lazy } from "react";
+const About = lazy(() => import("./components/About"));
+const Features = lazy(() => import("./components/Features"));
+const Story = lazy(() => import("./components/Story"));
+const Sponsors = lazy(() => import("./components/Sponsors"));
+const Contact = lazy(() => import("./components/Contact"));
+const Footer = lazy(() => import("./components/Footer"));
 import { VideoProvider } from "./contexts/VideoContext";
 
 function App() {
@@ -13,11 +15,24 @@ function App() {
       <main className="relative min-h-screen w-screen overflow-x-hidden">
         <NavBar />
         <Hero />
-        <About />
-        <Features />
-        <Story />
-        <Contact />
-        <Footer />
+        <Suspense fallback={<div className="min-h-[40vh]" />}> 
+          <About />
+        </Suspense>
+        <Suspense fallback={<div className="min-h-[40vh]" />}> 
+          <Features />
+        </Suspense>
+        <Suspense fallback={<div className="min-h-[40vh]" />}> 
+          <Story />
+        </Suspense>
+        <Suspense fallback={<div className="min-h-[40vh]" />}> 
+          <Sponsors />
+        </Suspense>
+        <Suspense fallback={<div className="min-h-[40vh]" />}> 
+          <Contact />
+        </Suspense>
+        <Suspense fallback={<div className="min-h-[20vh]" />}> 
+          <Footer />
+        </Suspense>
       </main>
     </VideoProvider>
   );

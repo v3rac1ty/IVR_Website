@@ -69,7 +69,7 @@ const CountdownTimer = ({ event }) => {
       {isPast ? (
         <p className="text-sm text-green-400">Event Completed!</p>
       ) : (
-        <div className="flex gap-3">
+        <div className="flex gap-1">
           <TimeUnit value={timeLeft.days} label="Days" />
           <TimeUnit value={timeLeft.hours} label="Hrs" />
           <TimeUnit value={timeLeft.minutes} label="Min" />
@@ -164,7 +164,7 @@ const FloatingImage = () => {
 
         <div className="relative size-full">
           <AnimatedTitle
-            title="For young <br /> engineers & innovators"
+            title="For young <br /> engineers"
             containerClass="mt-5 pointer-events-none mix-blend-difference relative z-10"
           />
 
@@ -180,6 +180,8 @@ const FloatingImage = () => {
                   src="/img/Vex_CC_Jr.png"
                   alt="Vex_CC_Jr.png"
                   className="object-contain"
+                  loading="lazy"
+                  decoding="async"
                 />
               </div>
             </div>
@@ -213,9 +215,9 @@ const FloatingImage = () => {
           </div>
         </div>
 
-        <div className="-mt-80 flex w-full justify-center md:-mt-85">
+        <div className="-mt-96 flex w-full justify-center md:-mt-96">
           <div className="flex h-full w-fit flex-col items-center">
-            <p className="mt-3 max-w-sm text-center font-circular-web text-violet-50">
+            <p className="mt-3 max-w-3xl text-center font-circular-web text-violet-50">
               Cornfield Clash is Illini VEX Robotics' premier competition,
               welcoming middle school, high school, and university teams
               (CC &amp; CC Jr).
@@ -233,8 +235,10 @@ const FloatingImage = () => {
             />
 
             <div
-              className={`mt-6 w-full overflow-hidden transition-all duration-500 ${
-                open ? "max-h-[600px] opacity-100" : "max-h-0 opacity-0"
+              className={`mt-6 w-full overflow-hidden transition-all duration-700 ease-in-out ${
+                open
+                  ? "max-h-[600px] opacity-100 translate-y-0 scale-100"
+                  : "max-h-0 opacity-0 -translate-y-2 scale-[0.99]"
               }`}
             >
               <div className="rounded-lg bg-black/80 p-6 backdrop-blur-sm">
@@ -246,9 +250,6 @@ const FloatingImage = () => {
                     <CountdownTimer key={index} event={event} />
                   ))}
                 </div>
-                <p className="mt-4 text-center text-xs text-gray-500">
-                  To update event dates, edit the EVENTS array in Story.jsx
-                </p>
               </div>
             </div>
           </div>
