@@ -182,7 +182,6 @@ export const FlippableBentoCard = ({ src, title, description, isComingSoon, cros
             transition: "opacity 0.01s linear",
             transitionDelay: isFlipped ? "250ms" : "250ms",
             backfaceVisibility: "hidden",
-            transform: "rotateY(180deg)",
           }}
         >
           <div
