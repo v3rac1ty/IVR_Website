@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 
 // Single data structure for easy add/remove (similar to EVENTS)
 // To use a logo: set `logo: "/img/sponsors/your-logo.png"`
@@ -26,12 +26,25 @@ const SPONSOR_TIERS = [
     ],
   },
   {
+    id: "gold",
+    title: "GOLD",
+    description: "Gold Sponsors",
+    items: [],
+  },
+  {
+    id: "silver",
+    title: "SILVER",
+    description: "Silver Sponsors",
+    items: [],
+  },
+  {
     id: "bronze",
     title: "BRONZE",
     description: "Supporting Sponsors",
     items: [
       { name: "Polymaker", logo: "/img/sponsors/polymaker.png" },
       { name: "MAGNA / Nascote Industries Inc.", logo: "/img/sponsors/magna.png" },
+      { name: "BP", textOnly: true },
     ],
   },
 ];
@@ -40,12 +53,13 @@ const SponsorLogo = ({ name, logo, textOnly, variant }) => {
   const [failed, setFailed] = useState(false);
   const showText = textOnly || failed || !logo;
   const isPlatinum = variant === "platinum";
+  const isOrangeBlue = variant === "orange-blue";
 
   // Text-only fallback card
   if (showText) {
     return (
       <div
-        className={`relative flex ${isPlatinum ? 'h-40 w-[420px]' : 'h-32 w-80'} items-center justify-center rounded-2xl ${isPlatinum ? 'border border-slate-300/20 bg-gradient-to-r from-slate-400/6 to-gray-400/6' : 'border border-white/10 bg-white/5'} px-6 text-center text-sm font-medium text-white transition transform hover:scale-105 ${isPlatinum ? 'shadow-2xl' : ''}`}>
+        className={`relative flex ${isPlatinum ? 'h-40 w-[420px]' : 'h-32 w-80'} items-center justify-center rounded-2xl ${isPlatinum ? 'border border-slate-300/20 bg-gradient-to-r from-slate-400/6 to-gray-400/6' : isOrangeBlue ? 'border border-white/10 bg-[#0F1A2E]' : 'border border-white/10 bg-black'} px-6 text-center text-sm font-medium text-white transition transform hover:scale-105 ${isPlatinum ? 'shadow-2xl' : ''}`}>
         {name}
         {isPlatinum && <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-slate-400/10 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300" />}
       </div>
@@ -56,7 +70,7 @@ const SponsorLogo = ({ name, logo, textOnly, variant }) => {
     <div className="relative group">
       <div className={`absolute inset-0 rounded-2xl blur-lg opacity-0 group-hover:opacity-75 transition-opacity duration-300 ${isPlatinum ? 'bg-gradient-to-r from-slate-300/40 via-gray-300/30 to-white/20' : 'bg-gradient-to-r from-blue-500/20 to-transparent'}`} />
       <div
-        className={`relative flex ${isPlatinum ? 'h-40 w-[420px]' : 'h-32 w-80'} items-center justify-center rounded-2xl px-6 transition-all duration-300 transform hover:scale-110 ${isPlatinum ? 'bg-gradient-to-r from-slate-400/8 via-gray-300/8 to-slate-400/8 shadow-2xl ring-1 ring-slate-300/20 hover:ring-slate-300/40' : 'bg-white/5 hover:shadow-2xl hover:ring-1 hover:ring-white/20'}`}>
+        className={`relative flex ${isPlatinum ? 'h-40 w-[420px]' : 'h-32 w-80'} items-center justify-center rounded-2xl px-6 transition-all duration-300 transform hover:scale-110 ${isPlatinum ? 'bg-gradient-to-r from-slate-400/8 via-gray-300/8 to-slate-400/8 shadow-2xl ring-1 ring-slate-300/20 hover:ring-slate-300/40' : isOrangeBlue ? 'bg-[#0F1A2E] hover:brightness-95' : 'bg-black hover:shadow-2xl hover:ring-1 hover:ring-white/10'}`}>
         <img
           src={logo}
           alt={name}
@@ -99,6 +113,69 @@ const SponsorTier = ({ title, description, items, id }) => {
 };
 
 const Sponsors = () => {
+  const sheenRefs = useRef({});
+  const sheenTimers = useRef({});
+  const containerRefs = useRef({});
+
+  useEffect(() => {
+    // Start sheen animations on mount for all tiers
+    Object.values(sheenRefs.current).forEach((el) => {
+      if (!el) return;
+      el.style.animation = 'sheen 3.2s linear infinite';
+      el.style.animationPlayState = 'running';
+      el.style.opacity = '0.18';
+      el.style.transition = 'opacity 0.35s ease';
+    });
+
+    return () => {
+      // cleanup timers
+      Object.values(sheenTimers.current).forEach((t) => clearTimeout(t));
+    };
+  }, []);
+
+  const handleTierMouseEnter = (id) => {
+    const el = sheenRefs.current[id];
+    if (!el) return;
+    // fade out sheen then pause animation
+    el.style.transition = 'opacity 0.35s ease';
+    el.style.opacity = '0';
+    // clear any pending restart
+    if (sheenTimers.current[id]) {
+      clearTimeout(sheenTimers.current[id]);
+      delete sheenTimers.current[id];
+    }
+    sheenTimers.current[id] = setTimeout(() => {
+      try { el.style.animationPlayState = 'paused'; } catch (e) {}
+      delete sheenTimers.current[id];
+    }, 360);
+  };
+
+  const handleTierMouseLeave = (id) => {
+    const el = sheenRefs.current[id];
+    if (!el) return;
+    // ensure any previous timers cleared
+    if (sheenTimers.current[id]) {
+      clearTimeout(sheenTimers.current[id]);
+      delete sheenTimers.current[id];
+    }
+    // fade out was done on enter; restart animation from beginning after a short delay
+    sheenTimers.current[id] = setTimeout(() => {
+      // reset animation to start
+      try {
+        el.style.animation = 'none';
+        // force reflow
+        void el.offsetWidth;
+        el.style.animation = 'sheen 3.2s linear infinite';
+        el.style.animationPlayState = 'running';
+        // fade in sheen
+        el.style.transition = 'opacity 0.5s ease 0.25s';
+        el.style.opacity = '0.18';
+      } catch (e) {}
+      delete sheenTimers.current[id];
+    }, 420); // delay before restarting
+  };
+
+  
   return (
     <section id="sponsors" className="relative w-screen overflow-hidden bg-black py-24 text-blue-100">
       {/* Animated background gradient overlay */}
@@ -114,12 +191,31 @@ const Sponsors = () => {
         </div>
 
         {SPONSOR_TIERS.map((tier, idx) => (
-          <div key={tier.id} className="relative">
+          <div key={tier.id} className="relative group" onMouseEnter={() => handleTierMouseEnter(tier.id)} onMouseLeave={() => { handleTierMouseLeave(tier.id); }} ref={(el)=>containerRefs.current[tier.id]=el}>
             {/* Enhanced tier panel with borders and glow effects */}
-            <div className={`relative rounded-2xl overflow-hidden ${tier.id === 'orange-blue' ? 'bg-gradient-to-r from-[#071a2b]/50 via-[#0a2847]/40 to-[#071a2b]/50 ring-1 ring-blue-400/20' : tier.id === 'platinum' ? 'bg-gradient-to-r from-slate-400/8 via-gray-300/6 to-slate-400/5 ring-2 ring-slate-300/30 shadow-2xl shadow-slate-500/20' : 'bg-transparent'} px-4 ${tier.id === 'platinum' ? 'py-16' : 'py-10'}`}>
-              {/* Glow effect for platinum */}
+            <div className={`relative rounded-2xl overflow-hidden ${tier.id === 'orange-blue' ? 'bg-[#0F1A2E] ring-1 ring-[#0F1A2E]/30' : tier.id === 'platinum' ? 'bg-gradient-to-r from-slate-400/8 via-gray-300/6 to-slate-400/5 ring-2 ring-slate-300/30 shadow-2xl shadow-slate-500/20' : 'bg-transparent'} px-4 ${tier.id === 'platinum' ? 'py-16' : 'py-10'}`}>
+              {/* Platinum: tier-level metal texture + glow overlays (persistent while group is hovered) */}
               {tier.id === 'platinum' && (
-                <div className="absolute inset-0 bg-gradient-to-r from-slate-400/0 via-gray-300/10 to-slate-400/0 opacity-0 hover:opacity-100 transition-opacity duration-300" />
+                <>
+                  <div
+                    className="absolute inset-0 opacity-0 group-hover:opacity-50 transition-opacity duration-700 pointer-events-none"
+                    style={{
+                      backgroundImage: "linear-gradient(rgba(0,0,0,0.42), rgba(0,0,0,0.42)), url('/img/metal-texture.png'), url('/img/metal-texture.svg')",
+                      backgroundRepeat: 'repeat, repeat, repeat',
+                      backgroundSize: 'cover, cover, 120% auto',
+                      backgroundPosition: 'center, center, center',
+                      mixBlendMode: 'overlay',
+                      zIndex: 5,
+                      filter: 'brightness(0.45) contrast(1.05) saturate(0.9)',
+                    }}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-r from-slate-400/0 via-gray-300/10 to-slate-400/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" style={{ zIndex: 6 }} />
+
+                  {/* sheen animation over the platinum tier */}
+                  <div ref={(el)=>sheenRefs.current[tier.id]=el} className="sponsor-sheen absolute opacity-0 group-hover:opacity-28 pointer-events-none" style={{ zIndex: 7, left: '-120%', top: 0, height: '100%', width: '240%', transform: 'skewX(-18deg)', background: 'linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.70) 50%, rgba(255,255,255,0) 100%)', filter: 'blur(6px)', mixBlendMode: 'screen' }} />
+
+                  {/* highlight removed (no cursor-follow glint) */}
+                </>
               )}
               <SponsorTier {...tier} />
             </div>
@@ -149,3 +245,17 @@ const Sponsors = () => {
 };
 
 export default Sponsors;
+
+/* Sheen animation keyframes (scoped injection) */
+const style = document.createElement('style');
+// Sheen shows when the tier is NOT hovered; metal texture shows on hover (group-hover)
+style.innerHTML = `@keyframes sheen { 0% { transform: translateX(-160%) skewX(-18deg); } 50% { transform: translateX(0%) skewX(-18deg); } 100% { transform: translateX(160%) skewX(-18deg); } }
+/* sheen visible when NOT hovering the tier */
+.group:not(:hover) .group-hover\\:opacity-28{opacity:0.18}
+/* metal texture visible when hovering the tier */
+.group:hover .group-hover\\:opacity-50{opacity:0.5}
+/* pause sheen animation while hovering the tier */
+.group:hover .sponsor-sheen{ animation-play-state: paused !important; opacity: 0 !important }
+.group:not(:hover) .sponsor-sheen{ animation-play-state: running !important }
+`;
+document.head.appendChild(style);
