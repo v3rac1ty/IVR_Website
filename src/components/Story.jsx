@@ -3,22 +3,23 @@ import { useRef, useState, useEffect } from "react";
 
 import Button from "./Button";
 import AnimatedTitle from "./AnimatedTitle";
+import { BentoTilt } from "./Features";
 
 // ==========================================
 // EVENT CONFIGURATION - Edit dates here
 // ==========================================
 const EVENTS = [
   {
-    level: "VURC", // Competition level: V5RC or VURC
+    level: "VEXU", // Competition level
     name: "Cornfield Clash",
-    date: "2026-03-15T09:00:00", // Format: YYYY-MM-DDTHH:MM:SS
-    robotEventsUrl: "https://www.robotevents.com/robot-competitions/vex-robotics-competition",
+    date: "2026-01-31T08:30:00-06:00", // 31-Jan-2026 8:30 AM CST
+    robotEventsUrl: "https://www.robotevents.com/robot-competitions/college-competition/RE-VURC-25-3654.html#general-info",
   },
   {
-    level: "V5RC", // Competition level: V5RC or VURC
+    level: "V5RC",
     name: "Cornfield Clash Jr",
-    date: "2026-03-14T09:00:00",
-    robotEventsUrl: "https://www.robotevents.com/robot-competitions/vex-robotics-competition",
+    date: "2026-02-07T08:30:00-06:00", // 7-Feb-2026 8:30 AM CST
+    robotEventsUrl: "https://www.robotevents.com/robot-competitions/vex-robotics-competition/RE-V5RC-25-3653.html",
   },
 ];
 // ==========================================
@@ -247,7 +248,9 @@ const FloatingImage = () => {
                 </h2>
                 <div className="flex flex-col items-center gap-4 md:flex-row md:justify-center">
                   {EVENTS.map((event, index) => (
-                    <CountdownTimer key={index} event={event} />
+                    <BentoTilt key={index} className="m-2 w-64">
+                      <CountdownTimer event={event} />
+                    </BentoTilt>
                   ))}
                 </div>
               </div>
