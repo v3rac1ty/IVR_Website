@@ -316,18 +316,19 @@ const Hero = () => {
         </div>
       </div>
 
-      {/* Revealed behind the video frame as it clips on scroll */}
+      {/* Revealed behind the video frame as it clips on scroll.
+          Same SplitWord structure as the white copies so they line up exactly. */}
       <p
         aria-hidden="true"
         className="hero-heading absolute bottom-5 right-5 text-accent"
       >
-        Robotics
+        <SplitWord text="Robotics" />
       </p>
       <p
         aria-hidden="true"
         className="hero-heading absolute left-5 top-24 text-accent sm:left-10"
       >
-        Redefine
+        <SplitWord text="Redefine" />
       </p>
     </section>
   );

@@ -11,7 +11,20 @@ import { gsap, prefersReducedMotion } from "../lib/motion";
 // Content comes from src/data/history.js.
 const History = () => {
   const listRef = useRef(null);
+  const trackRef = useRef(null);
   const fillRef = useRef(null);
+  const reduceMotion = prefersReducedMotion();
+
+  // Light each marker once the orange line's tip reaches it.
+  const lightMarkers = (progress) => {
+    const track = trackRef.current?.getBoundingClientRect();
+    if (!track) return;
+    const tip = track.top + progress * track.height;
+    listRef.current?.querySelectorAll("[data-marker]").forEach((marker) => {
+      const box = marker.getBoundingClientRect();
+      marker.dataset.lit = String(box.top + box.height / 2 <= tip + 1);
+    });
+  };
 
   useGSAP(
     () => {
@@ -28,6 +41,8 @@ const History = () => {
             end: "bottom 55%",
             scrub: true,
             refreshPriority: -1, // measure after the pinned About section above
+            onUpdate: (self) => lightMarkers(self.progress),
+            onRefresh: (self) => lightMarkers(self.progress),
           },
         }
       );
@@ -49,7 +64,7 @@ const History = () => {
 
         <ol ref={listRef} className="relative mt-24 md:mt-32">
           {/* Timeline line: faint track plus an orange fill driven by scroll */}
-          <span aria-hidden="true" className="absolute inset-y-2 left-[7px] w-px bg-white/10 md:left-[calc(14rem+7px)]" />
+          <span ref={trackRef} aria-hidden="true" className="absolute inset-y-2 left-[7px] w-px bg-white/10 md:left-[calc(14rem+7px)]" />
           <span
             ref={fillRef}
             aria-hidden="true"
@@ -69,16 +84,16 @@ const History = () => {
                 <p className="mt-2 text-sm font-semibold text-accent">{season.game}</p>
               </div>
 
-              {/* Marker on the line */}
+              {/* Marker: gray until the line reaches it, then orange; the last one fills solid */}
               <span
                 aria-hidden="true"
+                data-marker
+                data-lit={reduceMotion ? "true" : "false"}
                 className={clsx(
-                  "absolute left-0 top-2 size-[15px] rounded-full border-2 md:left-56",
-                  season.current
-                    ? "border-accent bg-accent shadow-[0_0_0_6px_rgb(255_95_5/0.2)] motion-safe:animate-pulse"
-                    : season.highlight
-                      ? "border-accent bg-ink shadow-[0_0_12px_rgb(255_95_5/0.7)]"
-                      : "border-white/30 bg-ink"
+                  "absolute left-0 top-2 size-[15px] rounded-full border-2 border-white/30 bg-ink transition-all duration-500 md:left-56",
+                  "data-[lit=true]:border-accent data-[lit=true]:shadow-[0_0_12px_rgb(255_95_5/0.7)]",
+                  i === SEASONS.length - 1 &&
+                    "data-[lit=true]:scale-125 data-[lit=true]:bg-accent data-[lit=true]:shadow-[0_0_0_6px_rgb(255_95_5/0.25),0_0_18px_rgb(255_95_5/0.9)]"
                 )}
               />
 

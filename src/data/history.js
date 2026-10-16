@@ -1,7 +1,7 @@
 // ==========================================
 // TEAM HISTORY - edit or add seasons here
 // ==========================================
-// Newest season goes last. `highlight: true` marks a standout season; `current: true` marks the live one.
+// Newest season goes last. Markers light orange as the timeline line reaches them; the last one fills solid.
 export const HISTORY_STATS = [
   { value: 5, label: "Trips to the World Championship" },
   { value: 3, suffix: "rd", label: "In the Innovate Division at Worlds" },

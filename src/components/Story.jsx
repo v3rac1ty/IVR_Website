@@ -334,20 +334,29 @@ const Story = () => {
   return (
     <section id="story" className="w-full bg-ink py-24 text-paper md:py-32">
       <div className="mx-auto max-w-7xl px-4 md:px-10">
-        <AnimatedTitle
-          title="For young <br /> engineers"
-          containerClass="pointer-events-none relative z-10 text-center mix-blend-difference"
-        />
+        <p className="text-center text-xs font-bold uppercase tracking-[0.2em] text-accent">
+          Illinois&apos; premier robotics competition
+        </p>
 
-        <div
-          className="mx-auto -mt-8 max-w-5xl touch-pan-y sm:-mt-14 md:-mt-24"
-          onPointerMove={handleMouseMove}
-          onPointerLeave={handleMouseLeave}
-          onPointerUp={(e) => e.pointerType !== "mouse" && handleMouseLeave()}
-          onPointerCancel={handleMouseLeave}
-        >
-          <div className="relative isolate">
-            <div aria-hidden="true" className="cc-ambient pointer-events-none absolute inset-x-[-4%] inset-y-[-8%] -z-10" />
+        {/* One glow spans the title and the flyer. Its colors slowly rotate, and the title
+            (mix-blend-difference) shifts color with them. */}
+        <div className="relative isolate mt-5">
+          <div
+            aria-hidden="true"
+            className="cc-ambient pointer-events-none absolute inset-x-[2%] bottom-[2%] top-[-6%] -z-10"
+          />
+          <AnimatedTitle
+            title="For young <br /> engineers"
+            containerClass="pointer-events-none relative text-center mix-blend-difference"
+          />
+
+          <div
+            className="mx-auto mt-6 max-w-5xl touch-pan-y md:mt-8"
+            onPointerMove={handleMouseMove}
+            onPointerLeave={handleMouseLeave}
+            onPointerUp={(e) => e.pointerType !== "mouse" && handleMouseLeave()}
+            onPointerCancel={handleMouseLeave}
+          >
             <div ref={frameRef} className="relative will-change-transform">
               <img
                 src="/img/opt/vex-cc-jr.webp"
@@ -362,7 +371,7 @@ const Story = () => {
           </div>
         </div>
 
-        <div className="reveal relative z-10 mx-auto mt-12 max-w-3xl text-center md:mt-16">
+        <div className="reveal relative z-10 mx-auto mt-14 max-w-3xl text-center md:mt-[4.5rem]">
           <h3 className="text-keynote font-display text-4xl font-extrabold tracking-[-0.04em] md:text-6xl">Cornfield Clash</h3>
           <p className="mt-5 text-lg leading-relaxed text-paper-muted md:text-xl">
             Illinois&apos; premier VEX competition, hosted by Illini VEX Robotics
