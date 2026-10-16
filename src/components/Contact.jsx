@@ -12,13 +12,14 @@ const Contact = () => {
   return (
     <section id="contact" className="w-full px-4 py-24 md:px-10 md:py-32">
       <div className="reveal mx-auto grid max-w-7xl overflow-hidden rounded-card border border-white/10 bg-ink-800 text-paper md:grid-cols-2">
-        <div className="relative h-56 md:order-2 md:h-auto">
+        {/* Full-height photo column; object position keeps the robot in frame */}
+        <div className="relative h-64 sm:h-72 md:order-2 md:h-auto">
           <img
-            src="/img/posters/hero-3.webp"
-            alt="Team members wiring a competition robot beside the field"
-            width={1280}
-            height={640}
-            className="absolute inset-0 size-full object-cover"
+            src="/img/opt/contact-robot.webp"
+            alt="An Illini VEX Robotics robot on the competition field"
+            width={1090}
+            height={970}
+            className="absolute inset-0 size-full object-cover object-[53%_70%]"
             loading="lazy"
             decoding="async"
           />
