@@ -1,100 +1,76 @@
-import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
-import { ScrollTrigger } from "gsap/all";
 import { useRef } from "react";
 
 import AnimatedTitle from "./AnimatedTitle";
-
-gsap.registerPlugin(ScrollTrigger);
+import { gsap, prefersReducedMotion } from "../lib/motion";
 
 const About = () => {
-  const aboutImageRef = useRef(null);
+  const sectionRef = useRef(null);
+  const maskRef = useRef(null);
 
-  useGSAP(() => {
-    const clipAnimation = gsap.timeline({
-      scrollTrigger: {
-        trigger: "#clip",
-        start: "center center",
-        end: "+=800 center",
-        scrub: 0.5,
-        pin: true,
-        pinSpacing: true,
-      },
-    });
+  useGSAP(
+    () => {
+      if (prefersReducedMotion()) return;
 
-    clipAnimation.to(".mask-clip-path", {
-      width: "100vw",
-      height: "100vh",
-      borderRadius: 0,
-    });
-
-    // Scroll-based fade and scale animation for the about image
-    // Only applies when the image is in its small form (before expansion)
-    const imageAnimation = gsap.fromTo(aboutImageRef.current,
-      {
-        opacity: 0,
-        scale: 0.7,
-        y: 80
-      },
-      {
-        opacity: 1,
-        scale: 1,
-        y: 0,
-        duration: 1.2,
-        ease: "power3.out",
-        scrollTrigger: {
-          trigger: aboutImageRef.current,
-          start: "top 90%",
-          end: "bottom 40%",
-          toggleActions: "play none none reverse"
-        }
-      }
-    );
-
-    ScrollTrigger.create({
-      trigger: "#clip",
-      start: "center center",
-      onEnter: () => {
-        // When clip animation starts, ensure image is fully visible and scaled
-        gsap.set(aboutImageRef.current, { opacity: 1, scale: 1, y: 0 });
-        imageAnimation.kill();
-      }
-    });
-  });
+      // Pinned reveal: the framed photo grows to fill the viewport.
+      gsap
+        .timeline({
+          scrollTrigger: {
+            trigger: "#clip",
+            start: "center center",
+            end: "+=800 center",
+            scrub: 0.5,
+            pin: true,
+            pinSpacing: true,
+          },
+        })
+        .to(maskRef.current, {
+          width: "100vw",
+          height: "100vh",
+          borderRadius: 0,
+        });
+    },
+    { scope: sectionRef }
+  );
 
   return (
-    <div id="about" className="min-h-screen w-screen">
+    <section id="about" ref={sectionRef} className="min-h-screen w-full">
       <div className="relative mb-8 mt-36 flex flex-col items-center gap-5">
-        <p className="font-general text-sm uppercase md:text-[10px]">
+        <p className="text-xs font-bold uppercase tracking-[0.2em] text-accent">
           Welcome to Illini VEX Robotics
         </p>
 
         <AnimatedTitle
           title="Build the future of <br /> robotics innovation"
-          containerClass="mt-5 !text-black text-center"
+          containerClass="mt-5 text-center"
         />
 
-        <div className="about-subtext">
-          <p>From design to competition—engineering excellence in every build.</p>
-          <p className="text-gray-500">
-            Illini VEX Robotics brings together talented engineers and innovators to push the boundaries of robotics and compete at the highest levels.
+        <div className="absolute bottom-[-80dvh] left-1/2 w-full max-w-md -translate-x-1/2 px-6 text-center text-lg md:max-w-xl">
+          <p className="font-semibold text-paper">
+            From design to competition, engineering excellence in every build.
+          </p>
+          <p className="mt-2 leading-relaxed text-paper-muted">
+            Illini VEX Robotics brings together engineers and builders at the
+            University of Illinois to push the limits of robotics and compete at
+            the highest level.
           </p>
         </div>
       </div>
 
-      <div className="h-dvh w-screen" id="clip">
-        <div className="mask-clip-path about-image">
+      <div className="h-dvh w-full" id="clip">
+        <div ref={maskRef} className="mask-clip-path about-image">
           <img
-            ref={aboutImageRef}
-            src="img/about.webp"
-            alt="Background"
+            src="/img/opt/about.webp"
+            alt="Illini VEX Robotics team holding an Illinois flag behind their robots at a competition"
+            width={1920}
+            height={1440}
             className="absolute left-0 top-0 size-full object-cover"
             loading="lazy"
             decoding="async"
           />
         </div>
       </div>
-    </div>
+    </section>
   );
 };
 

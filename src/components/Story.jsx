@@ -1,9 +1,11 @@
-import gsap from "gsap";
-import { useRef, useState, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useGSAP } from "@gsap/react";
+import { TiLocationArrow } from "react-icons/ti";
+import clsx from "clsx";
 
 import Button from "./Button";
 import AnimatedTitle from "./AnimatedTitle";
-import { BentoTilt } from "./Features";
+import { gsap, prefersReducedMotion } from "../lib/motion";
 
 // ==========================================
 // EVENT CONFIGURATION - Edit dates here
@@ -24,42 +26,49 @@ const EVENTS = [
 ];
 // ==========================================
 
-const useCountdown = (targetDate) => {
-  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+const getTimeLeft = (targetDate) => {
+  const difference = Math.max(0, new Date(targetDate) - new Date());
+  return {
+    days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+    hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
+    minutes: Math.floor((difference / 1000 / 60) % 60),
+    seconds: Math.floor((difference / 1000) % 60),
+  };
+};
+
+// Ticks only while the events panel is open.
+const useCountdown = (targetDate, active) => {
+  const [timeLeft, setTimeLeft] = useState(() => getTimeLeft(targetDate));
 
   useEffect(() => {
-    const calculateTimeLeft = () => {
-      const difference = new Date(targetDate) - new Date();
-      if (difference > 0) {
-        setTimeLeft({
-          days: Math.floor(difference / (1000 * 60 * 60 * 24)),
-          hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
-          minutes: Math.floor((difference / 1000 / 60) % 60),
-          seconds: Math.floor((difference / 1000) % 60),
-        });
-      } else {
-        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-      }
-    };
-
-    calculateTimeLeft();
-    const timer = setInterval(calculateTimeLeft, 1000);
+    if (!active) return;
+    setTimeLeft(getTimeLeft(targetDate));
+    const timer = setInterval(() => setTimeLeft(getTimeLeft(targetDate)), 1000);
     return () => clearInterval(timer);
-  }, [targetDate]);
+  }, [targetDate, active]);
 
   return timeLeft;
 };
 
-const CountdownTimer = ({ event }) => {
-  const timeLeft = useCountdown(event.date);
+const TimeUnit = ({ value, label }) => (
+  <div className="flex flex-col items-center">
+    <span className="min-w-[3ch] text-center font-mono text-2xl font-bold tabular-nums leading-none text-paper">
+      {String(value).padStart(2, "0")}
+    </span>
+    <span className="mt-1 text-[11px] uppercase text-paper-muted">{label}</span>
+  </div>
+);
+
+const EventCard = ({ event, active }) => {
+  const timeLeft = useCountdown(event.date, active);
   const eventDate = new Date(event.date);
   const isPast = new Date() > eventDate;
 
   return (
-    <div className="flex flex-col items-center rounded-lg bg-[#13294B] p-4">
-      <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-[#FF5F05]">{event.level}</p>
-      <h3 className="mb-3 text-lg font-bold text-[#FF5F05]">{event.name}</h3>
-      <p className="mb-2 text-sm text-gray-300">
+    <article className="flex flex-col rounded-card border border-white/10 bg-ink-700 p-5">
+      <p className="text-xs font-bold uppercase tracking-wide text-accent">{event.level}</p>
+      <h3 className="mt-1 font-title text-xl uppercase text-paper">{event.name}</h3>
+      <p className="mt-1 text-sm text-paper-muted">
         {eventDate.toLocaleDateString("en-US", {
           weekday: "long",
           year: "numeric",
@@ -67,190 +76,114 @@ const CountdownTimer = ({ event }) => {
           day: "numeric",
         })}
       </p>
-      {isPast ? (
-        <p className="text-sm text-green-400">Event Completed!</p>
-      ) : (
-        <div className="flex gap-1">
-          <TimeUnit value={timeLeft.days} label="Days" />
-          <TimeUnit value={timeLeft.hours} label="Hrs" />
-          <TimeUnit value={timeLeft.minutes} label="Min" />
-          <TimeUnit value={timeLeft.seconds} label="Sec" />
-        </div>
-      )}
+
+      <div className="my-4">
+        {isPast ? (
+          <p className="text-sm font-semibold text-paper">Event completed</p>
+        ) : (
+          <div className="flex gap-3" aria-label="Time until event">
+            <TimeUnit value={timeLeft.days} label="Days" />
+            <TimeUnit value={timeLeft.hours} label="Hrs" />
+            <TimeUnit value={timeLeft.minutes} label="Min" />
+            <TimeUnit value={timeLeft.seconds} label="Sec" />
+          </div>
+        )}
+      </div>
+
       <a
         href={event.robotEventsUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className="mt-3 rounded bg-[#FF5F05] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#e5540a]"
+        tabIndex={active ? 0 : -1}
+        className="mt-auto inline-flex w-fit items-center whitespace-nowrap gap-1 rounded-full bg-accent px-4 py-2 text-xs font-bold uppercase tracking-wide text-ink transition hover:bg-accent-hover active:scale-[0.98]"
       >
-        View on Robot Events
+        View on RobotEvents <TiLocationArrow />
       </a>
-    </div>
+    </article>
   );
 };
 
-const TimeUnit = ({ value, label }) => (
-  <div className="flex flex-col items-center">
-    <span
-      className="text-2xl font-bold text-white font-mono tabular-nums leading-none text-center"
-      style={{ minWidth: "3ch" }}
-    >
-      {String(value).padStart(2, "0")}
-    </span>
-    <span className="text-xs text-gray-400">{label}</span>
-  </div>
-);
-
-const FloatingImage = () => {
+const Story = () => {
   const frameRef = useRef(null);
-  const baseRotateX = 8; // slight tilt inward by default
-  const baseRotateY = 0;
   const [open, setOpen] = useState(false);
+  const tiltTo = useRef(null);
+
+  // quickTo reuses one tween per axis instead of creating a new tween on every mousemove.
+  useGSAP(() => {
+    gsap.set(frameRef.current, { rotateX: 8, transformPerspective: 600 });
+    tiltTo.current = {
+      x: gsap.quickTo(frameRef.current, "rotateX", { duration: 0.4, ease: "power2.out" }),
+      y: gsap.quickTo(frameRef.current, "rotateY", { duration: 0.4, ease: "power2.out" }),
+    };
+  });
 
   const handleMouseMove = (e) => {
-    const { clientX, clientY } = e;
-    const element = frameRef.current;
-
-    if (!element) return;
-
-    const rect = element.getBoundingClientRect();
-    const xPos = clientX - rect.left;
-    const yPos = clientY - rect.top;
-
-    const centerX = rect.width / 2;
-    const centerY = rect.height / 2;
-
-    const rotateX = baseRotateX + ((yPos - centerY) / centerY) * -10;
-    const rotateY = baseRotateY + ((xPos - centerX) / centerX) * 10;
-
-    gsap.to(element, {
-      duration: 0.3,
-      rotateX,
-      rotateY,
-      transformPerspective: 500,
-      ease: "power1.inOut",
-    });
+    if (!tiltTo.current || prefersReducedMotion()) return;
+    const rect = frameRef.current.getBoundingClientRect();
+    const dx = (e.clientX - rect.left) / rect.width - 0.5;
+    const dy = (e.clientY - rect.top) / rect.height - 0.5;
+    tiltTo.current.x(8 - dy * 20);
+    tiltTo.current.y(dx * 20);
   };
 
   const handleMouseLeave = () => {
-    const element = frameRef.current;
-
-    if (element) {
-      gsap.to(element, {
-        duration: 0.3,
-        rotateX: baseRotateX,
-        rotateY: baseRotateY,
-        ease: "power1.inOut",
-      });
-    }
+    tiltTo.current?.x(8);
+    tiltTo.current?.y(0);
   };
 
-  // Ensure the image starts at the base rotation on mount
-  useEffect(() => {
-    if (frameRef.current) {
-      gsap.set(frameRef.current, {
-        rotateX: baseRotateX,
-        rotateY: baseRotateY,
-        transformPerspective: 500,
-      });
-    }
-  }, [baseRotateX, baseRotateY]);
-
   return (
-    <div id="story" className="min-h-dvh w-screen bg-black text-blue-50">
-      <div className="flex size-full flex-col items-center py-10 pb-24">
-        <p className="font-general text-sm uppercase md:text-[10px]">
-          Illinois&#39; Premier VEX Competition
+    <section id="story" className="w-full bg-ink py-24 text-paper md:py-32">
+      <div className="mx-auto max-w-7xl px-4 md:px-10">
+        <p className="text-center text-xs font-bold uppercase tracking-[0.2em] text-accent">
+          Illinois&apos; premier VEX competition
         </p>
 
-        <div className="relative size-full">
-          <AnimatedTitle
-            title="For young <br /> engineers"
-            containerClass="mt-5 pointer-events-none mix-blend-difference relative z-10"
-          />
+        <AnimatedTitle title="For young <br /> engineers" containerClass="mt-5 text-center" />
 
-          <div className="story-img-container">
-            <div className="story-img-mask">
-              <div className="story-img-content">
-                <img
-                  ref={frameRef}
-                  onMouseMove={handleMouseMove}
-                  onMouseLeave={handleMouseLeave}
-                  onMouseUp={handleMouseLeave}
-                  onMouseEnter={handleMouseLeave}
-                  src="/img/Vex_CC_Jr.png"
-                  alt="Vex_CC_Jr.png"
-                  className="object-contain"
-                  loading="lazy"
-                  decoding="async"
-                />
-              </div>
-            </div>
-
-            {/* for the rounded corner */}
-            <svg
-              className="invisible absolute size-0"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <defs>
-                <filter id="flt_tag">
-                  <feGaussianBlur
-                    in="SourceGraphic"
-                    stdDeviation="8"
-                    result="blur"
-                  />
-                  <feColorMatrix
-                    in="blur"
-                    mode="matrix"
-                    values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 19 -9"
-                    result="flt_tag"
-                  />
-                  <feComposite
-                    in="SourceGraphic"
-                    in2="flt_tag"
-                    operator="atop"
-                  />
-                </filter>
-              </defs>
-            </svg>
+        <div className="mt-16 grid items-center gap-12 md:grid-cols-2 md:gap-16">
+          <div onMouseMove={handleMouseMove} onMouseLeave={handleMouseLeave}>
+            <img
+              ref={frameRef}
+              src="/img/opt/vex-cc-jr.webp"
+              alt="Cornfield Clash VEX V5 Robotics Competition, presented by Prismier and the Siebel Center for Design"
+              width={1400}
+              height={933}
+              className="h-auto w-full"
+              loading="lazy"
+              decoding="async"
+            />
           </div>
-        </div>
 
-        <div className="-mt-96 flex w-full justify-center md:-mt-96">
-          <div className="flex h-full w-fit flex-col items-center">
-            <p className="mt-3 max-w-3xl text-center font-circular-web text-violet-50">
-              Cornfield Clash is Illini VEX Robotics' premier competition,
-              welcoming middle school, high school, and university teams
-              (CC &amp; CC Jr).
-              We provide a hands-on platform to learn,
-              design, and compete, helping students grow their skills and
-              advance to international-level events while strengthening the
-              Illinois VEX community.
+          <div className="flex flex-col items-start">
+            <p className="max-w-[60ch] text-lg leading-relaxed text-paper-muted">
+              Cornfield Clash is Illini VEX Robotics&apos; flagship competition,
+              welcoming middle school, high school, and university teams (CC and
+              CC Jr). Students get a hands-on place to learn, design, and compete,
+              growing their skills on the way to international events while
+              strengthening the Illinois VEX community.
             </p>
 
             <Button
               id="realm-btn"
-              title="discover events"
-              containerClass="mt-5 cursor-pointer"
+              title={open ? "Hide events" : "Discover events"}
+              containerClass="mt-8"
+              aria-expanded={open}
+              aria-controls="events-panel"
               onClick={() => setOpen((s) => !s)}
             />
 
             <div
-              className={`mt-6 w-full overflow-hidden transition-all duration-700 ease-in-out ${
-                open
-                  ? "max-h-[600px] opacity-100 translate-y-0 scale-100"
-                  : "max-h-0 opacity-0 -translate-y-2 scale-[0.99]"
-              }`}
+              id="events-panel"
+              className={clsx(
+                "grid w-full transition-all duration-500 ease-out",
+                open ? "mt-8 grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+              )}
+              inert={open ? undefined : ""}
             >
-              <div className="rounded-lg bg-black/80 p-6 backdrop-blur-sm">
-                <h2 className="mb-4 text-center text-xl font-bold text-[#FF5F05]">
-                  Upcoming Events
-                </h2>
-                <div className="flex flex-col items-center gap-4 md:flex-row md:justify-center">
-                  {EVENTS.map((event, index) => (
-                    <BentoTilt key={index} className="m-2 w-64">
-                      <CountdownTimer event={event} />
-                    </BentoTilt>
+              <div className="min-h-0 overflow-hidden">
+                <div className="grid gap-4 lg:grid-cols-2">
+                  {EVENTS.map((event) => (
+                    <EventCard key={event.name} event={event} active={open} />
                   ))}
                 </div>
               </div>
@@ -258,8 +191,8 @@ const FloatingImage = () => {
           </div>
         </div>
       </div>
-    </div>
+    </section>
   );
 };
 
-export default FloatingImage;
+export default Story;

@@ -1,219 +1,134 @@
-import { useState, useRef, forwardRef, useEffect } from "react";
+import { useRef, useState } from "react";
+import { useGSAP } from "@gsap/react";
 import { TiLocationArrow } from "react-icons/ti";
 import { IoArrowBack } from "react-icons/io5";
-import gsap from "gsap";
-import { useGSAP } from "@gsap/react";
-import { ScrollTrigger } from "gsap/all";
-import { useWindowScroll } from "react-use";
-import CrossfadeVideo from "./CrossfadeVideo";
+import clsx from "clsx";
 
-gsap.registerPlugin(ScrollTrigger);
+import LazyVideo from "./LazyVideo";
+import { gsap, ScrollTrigger, prefersReducedMotion } from "../lib/motion";
 
-export const BentoTilt = forwardRef(({ children, className = "", onClick, disableTilt = false }, ref) => {
-  const [transformStyle, setTransformStyle] = useState("");
-  const itemRef = useRef(null);
-
-  // Use the forwarded ref if available, otherwise use the local ref
-  const actualRef = ref || itemRef;
+// Tilt follows the cursor by writing the transform directly (no React re-render per mousemove).
+// The outer div is animated by the scroll reveal; the inner one by the tilt, so they never fight.
+export const BentoTilt = ({ children, className = "", innerClassName = "" }) => {
+  const ref = useRef(null);
 
   const handleMouseMove = (event) => {
-    if (!actualRef.current || disableTilt) return;
-
-    const { left, top, width, height } =
-      actualRef.current.getBoundingClientRect();
-
-    const relativeX = (event.clientX - left) / width;
-    const relativeY = (event.clientY - top) / height;
-
-    const tiltX = (relativeY - 0.5) * 5;
-    const tiltY = (relativeX - 0.5) * -5;
-
-    const newTransform = `perspective(700px) rotateX(${tiltX}deg) rotateY(${tiltY}deg) scale3d(.95, .95, .95)`;
-    setTransformStyle(newTransform);
+    const el = ref.current;
+    if (!el || prefersReducedMotion()) return;
+    const { left, top, width, height } = el.getBoundingClientRect();
+    const tiltX = ((event.clientY - top) / height - 0.5) * 5;
+    const tiltY = ((event.clientX - left) / width - 0.5) * -5;
+    el.style.transform = `perspective(700px) rotateX(${tiltX}deg) rotateY(${tiltY}deg) scale3d(.97, .97, .97)`;
   };
 
   const handleMouseLeave = () => {
-    setTransformStyle("");
+    if (ref.current) ref.current.style.transform = "";
   };
+
+  return (
+    <div className={clsx("bento-reveal", className)}>
+      <div
+        ref={ref}
+        className={clsx("size-full transition-transform duration-150 ease-out", innerClassName)}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
+      >
+        {children}
+      </div>
+    </div>
+  );
+};
+
+const FeatureList = ({ heading, items }) => (
+  <div className="rounded-lg bg-white/5 p-4">
+    <h4 className="mb-2 text-lg font-bold text-accent">{heading}</h4>
+    <ul className="list-inside list-disc space-y-1 text-sm text-paper-muted">
+      {items.map((item) => (
+        <li key={item}>{item}</li>
+      ))}
+    </ul>
+  </div>
+);
+
+// Card with a looping clip on the front and details on the back.
+export const FlippableBentoCard = ({ src, poster, title, description, details }) => {
+  const [isFlipped, setIsFlipped] = useState(false);
+  const cardRef = useRef(null);
+
+  // Spotlight position lives in CSS variables, not React state.
+  const handleMouseMove = (event) => {
+    const el = cardRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    el.style.setProperty("--x", `${event.clientX - rect.left}px`);
+    el.style.setProperty("--y", `${event.clientY - rect.top}px`);
+  };
+
+  const faceClass =
+    "absolute inset-0 size-full overflow-hidden rounded-card transition-opacity duration-0 delay-200 [backface-visibility:hidden]";
 
   return (
     <div
-      ref={actualRef}
-      className={className}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      onClick={onClick}
-      style={{ 
-        transform: disableTilt ? "" : transformStyle,
-        transition: 'transform 0.1s ease-out'
-      }}
-    >
-      {children}
-    </div>
-  );
-});
-
-// Flippable Bento Card component - includes border that flips with it
-export const FlippableBentoCard = ({ src, title, description, isComingSoon, crossfadeDuration = 1, expandedContent, className = "" }) => {
-  const [isFlipped, setIsFlipped] = useState(false);
-  const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
-  const [hoverOpacity, setHoverOpacity] = useState(0);
-  const [isCardHovered, setIsCardHovered] = useState(false);
-  const [cardHoverPosition, setCardHoverPosition] = useState({ x: 0, y: 0 });
-  const hoverButtonRef = useRef(null);
-  const cardRef = useRef(null);
-
-  const handleCardMouseMove = (event) => {
-    if (!cardRef.current) return;
-    const rect = cardRef.current.getBoundingClientRect();
-    setCardHoverPosition({
-      x: event.clientX - rect.left,
-      y: event.clientY - rect.top,
-    });
-    setIsCardHovered(true);
-  };
-
-  const handleCardMouseLeave = () => {
-    setIsCardHovered(false);
-  };
-
-  const handleMouseMove = (event) => {
-    if (!hoverButtonRef.current) return;
-    const rect = hoverButtonRef.current.getBoundingClientRect();
-
-    setCursorPosition({
-      x: event.clientX - rect.left,
-      y: event.clientY - rect.top,
-    });
-  };
-
-  const handleMouseEnter = () => setHoverOpacity(1);
-  const handleMouseLeave = () => setHoverOpacity(0);
-
-  const handleFlip = (e) => {
-    e.stopPropagation();
-    setIsFlipped(!isFlipped);
-  };
-
-  return (
-    <div 
       ref={cardRef}
-      className={`relative size-full ${className}`}
-      onMouseMove={handleCardMouseMove}
-      onMouseEnter={() => setIsCardHovered(true)}
-      onMouseLeave={handleCardMouseLeave}
-      style={{ perspective: "2000px" }}
+      className="group relative size-full [perspective:2000px]"
+      onMouseMove={handleMouseMove}
     >
       <div
-        className="relative size-full transition-transform duration-700 border-hsla rounded-md"
-        style={{ 
-          transformStyle: "preserve-3d",
-          transform: isFlipped ? "rotateY(180deg)" : "rotateY(0deg)",
-          borderColor: isCardHovered ? "#FF5F05" : undefined,
-          boxShadow: isCardHovered ? "0 0 22px rgba(255, 95, 5, 0.38)" : undefined,
-        }}
+        className={clsx(
+          "relative size-full rounded-card border border-white/10 transition-[transform,border-color,box-shadow] duration-700 [transform-style:preserve-3d] group-hover:border-accent/70 group-hover:shadow-[0_0_24px_rgb(255_95_5/0.25)]",
+          isFlipped && "[transform:rotateY(180deg)]"
+        )}
       >
-        {/* Hover glint overlays live inside each face to avoid bleed-through */}
-
-        {/* Front of card */}
-        <div 
-          className="absolute inset-0 size-full rounded-md overflow-hidden"
-          style={{ 
-            opacity: isFlipped ? 0 : 1,
-            pointerEvents: isFlipped ? "none" : "auto",
-            transition: "opacity 0.01s linear",
-            transitionDelay: isFlipped ? "250ms" : "250ms",
-            backfaceVisibility: "hidden",
-            transform: "rotateY(0deg)",
-          }}
+        {/* Front */}
+        <div
+          className={clsx(faceClass, isFlipped ? "pointer-events-none opacity-0" : "opacity-100")}
+          inert={isFlipped ? "" : undefined}
         >
-          <div
-            className="pointer-events-none absolute inset-0 z-0 rounded-md transition-opacity duration-200"
-            style={{
-              opacity: isCardHovered && !isFlipped ? 1 : 0,
-              background: `radial-gradient(180px circle at ${cardHoverPosition.x}px ${cardHoverPosition.y}px, rgba(19, 41, 75, 0.22), rgba(19, 41, 75, 0))`,
-              mixBlendMode: "screen",
-            }}
-          />
-          <CrossfadeVideo
-            src={src}
-            crossfadeDuration={crossfadeDuration}
-            className="absolute left-0 top-0 size-full"
-          />
-          <div className="relative z-10 flex size-full flex-col justify-between p-5 text-blue-50">
+          <LazyVideo src={src} poster={poster} />
+          <div className="absolute inset-0 bg-gradient-to-b from-ink/70 via-ink/10 to-ink/60" />
+          <div className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-200 [background:radial-gradient(220px_circle_at_var(--x)_var(--y),rgb(255_95_5/0.18),transparent)] group-hover:opacity-100" />
+
+          <div className="relative z-10 flex size-full flex-col justify-between p-5 md:p-7">
             <div>
-              <h1 className="bento-title special-font">{title}</h1>
-              {description && (
-                <p className="mt-3 max-w-64 text-xs md:text-base">{description}</p>
-              )}
+              <h3 className="section-title text-paper">{title}</h3>
+              <p className="mt-3 max-w-sm text-sm leading-relaxed text-paper/85 md:text-base">
+                {description}
+              </p>
             </div>
 
-            {isComingSoon && (
-              <div
-                ref={hoverButtonRef}
-                onMouseMove={handleMouseMove}
-                onMouseEnter={handleMouseEnter}
-                onMouseLeave={handleMouseLeave}
-                onClick={handleFlip}
-                className="border-hsla relative flex w-fit cursor-pointer items-center gap-2 overflow-hidden rounded-full bg-[#13294B] px-6 py-2 text-sm font-semibold uppercase text-[#FF5F05]"
-              >
-                {/* Subtle highlight on hover (behind text) */}
-                <div
-                  className="pointer-events-none absolute inset-0 opacity-0 transition duration-200"
-                  style={{
-                    opacity: hoverOpacity * 0.9,
-                    background: `radial-gradient(120px circle at ${cursorPosition.x}px ${cursorPosition.y}px, rgba(255,255,255,0.06), rgba(0,0,0,0))`,
-                  }}
-                />
-                <TiLocationArrow className="relative z-20 text-[#FF5F05]" />
-                <p className="relative z-20">Learn More</p>
-              </div>
-            )}
+            <button
+              type="button"
+              onClick={() => setIsFlipped(true)}
+              className="flex w-fit items-center gap-2 rounded-full bg-ink-700 px-5 py-2.5 text-xs font-bold uppercase tracking-wide text-accent ring-1 ring-white/10 transition hover:bg-accent hover:text-ink active:scale-[0.98]"
+            >
+              <TiLocationArrow />
+              Learn more
+            </button>
           </div>
         </div>
 
-        {/* Back of card */}
-        <div 
-          className="absolute inset-0 size-full overflow-auto rounded-md bg-gradient-to-br from-gray-900 to-black"
-          style={{ 
-            transform: "rotateY(180deg)",
-            opacity: isFlipped ? 1 : 0,
-            pointerEvents: isFlipped ? "auto" : "none",
-            transition: "opacity 0.01s linear",
-            transitionDelay: isFlipped ? "250ms" : "250ms",
-            backfaceVisibility: "hidden",
-          }}
+        {/* Back */}
+        <div
+          className={clsx(
+            faceClass,
+            "bg-gradient-to-br from-ink-700 to-ink [transform:rotateY(180deg)]",
+            isFlipped ? "opacity-100" : "pointer-events-none opacity-0"
+          )}
+          inert={isFlipped ? undefined : ""}
         >
-          <div
-            className="pointer-events-none absolute inset-0 z-0 rounded-md transition-opacity duration-200"
-            style={{
-              opacity: isCardHovered && isFlipped ? 1 : 0,
-              background: `radial-gradient(200px circle at ${cardHoverPosition.x}px ${cardHoverPosition.y}px, rgba(19, 41, 75, 0.20), rgba(19, 41, 75, 0))`,
-              mixBlendMode: "screen",
-            }}
-          />
-          <div className="relative z-10 flex size-full flex-col p-5 text-blue-50">
-            {/* Header with back button */}
-            <div className="mb-4 flex items-center justify-between">
-              <h2 className="bento-title special-font text-2xl md:text-4xl">{title}</h2>
+          <div className="relative z-10 flex size-full flex-col p-5 md:p-7">
+            <div className="mb-4 flex items-center justify-between gap-4">
+              <h3 className="font-title text-2xl uppercase text-paper md:text-4xl">{title}</h3>
               <button
-                onClick={handleFlip}
-                className="flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-xs uppercase transition-colors hover:bg-white/20"
+                type="button"
+                onClick={() => setIsFlipped(false)}
+                className="flex shrink-0 items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-xs font-bold uppercase transition-colors hover:bg-white/20"
               >
                 <IoArrowBack />
-                <span>Back</span>
+                Back
               </button>
             </div>
-            
-            {/* Content */}
-            <div className="flex-1 overflow-auto">
-              <p className="mb-4 text-sm opacity-70 md:text-base">{description}</p>
-              {expandedContent && (
-                <div className="space-y-4">
-                  {expandedContent}
-                </div>
-              )}
-            </div>
+            <div className="flex-1 space-y-4 overflow-auto pr-1">{details}</div>
           </div>
         </div>
       </div>
@@ -221,395 +136,156 @@ export const FlippableBentoCard = ({ src, title, description, isComingSoon, cros
   );
 };
 
-// Keep original BentoCard for non-flippable cards
-export const BentoCard = ({ src, title, description, isComingSoon, crossfadeDuration = 1 }) => {
-  const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
-  const [hoverOpacity, setHoverOpacity] = useState(0);
-  const hoverButtonRef = useRef(null);
-
-  const handleMouseMove = (event) => {
-    if (!hoverButtonRef.current) return;
-    const rect = hoverButtonRef.current.getBoundingClientRect();
-
-    setCursorPosition({
-      x: event.clientX - rect.left,
-      y: event.clientY - rect.top,
-    });
-  };
-
-  const handleMouseEnter = () => setHoverOpacity(1);
-  const handleMouseLeave = () => setHoverOpacity(0);
-
-  return (
-    <div className="relative size-full">
-      <CrossfadeVideo
-        src={src}
-        crossfadeDuration={crossfadeDuration}
-        className="absolute left-0 top-0 size-full"
-      />
-      <div className="relative z-10 flex size-full flex-col justify-between p-5 text-blue-50">
-        <div>
-          <h1 className="bento-title special-font">{title}</h1>
-          {description && (
-            <p className="mt-3 max-w-64 text-xs md:text-base">{description}</p>
-          )}
-        </div>
-
-        {isComingSoon && (
-          <div
-            ref={hoverButtonRef}
-            onMouseMove={handleMouseMove}
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
-            className="border-hsla relative flex w-fit cursor-pointer items-center gap-2 overflow-hidden rounded-full bg-[#13294B] px-6 py-2 text-sm font-semibold uppercase text-[#FF5F05]"
-          >
-            <div
-              className="pointer-events-none absolute inset-0 opacity-0 transition duration-200"
-              style={{
-                opacity: hoverOpacity * 0.9,
-                background: `radial-gradient(120px circle at ${cursorPosition.x}px ${cursorPosition.y}px, rgba(255,255,255,0.06), rgba(0,0,0,0))`,
-              }}
-            />
-            <TiLocationArrow className="relative z-20 text-[#FF5F05]" />
-            <p className="relative z-20">coming soon</p>
+const DEPARTMENTS = {
+  departments: {
+    title: "Our Departments",
+    description:
+      "Three teams: VEX U competing at the collegiate level, plus R&D Mechanical and R&D Software running independent research projects.",
+    src: "/videos/bet.mp4",
+    poster: "/img/posters/bet.webp",
+    details: (
+      <div className="grid gap-4 md:grid-cols-3">
+        {[
+          ["VEX U", "Our collegiate competition team designs and builds robots for regional, state, and world championship events."],
+          ["R&D Mechanical", "Independent projects in prototyping, CAD, and fabricating new mechanisms outside of competition."],
+          ["R&D Software", "Independent projects in autonomous systems, computer vision, and control algorithms."],
+        ].map(([name, text]) => (
+          <div key={name} className="rounded-lg bg-white/5 p-4">
+            <h4 className="mb-2 text-lg font-bold text-accent">{name}</h4>
+            <p className="text-sm text-paper-muted">{text}</p>
           </div>
-        )}
+        ))}
       </div>
-    </div>
-  );
+    ),
+  },
+  vexu: {
+    title: "VEX U",
+    description:
+      "Our competitive collegiate team, designing and building advanced robots for international competition.",
+    src: "/videos/feature-2.mp4",
+    poster: "/img/posters/feature-2.webp",
+    details: (
+      <>
+        <p className="text-paper-muted">
+          VEX U is the collegiate division of the VEX Robotics Competition, where
+          university teams design and build robots for each season&apos;s game.
+        </p>
+        <FeatureList
+          heading="What we do"
+          items={[
+            "Design and build competition robots within strict constraints",
+            "Compete at regional, state, and world championship events",
+            "Collaborate across mechanical, electrical, and software",
+            "Document our engineering process for judged awards",
+          ]}
+        />
+      </>
+    ),
+  },
+  mechanical: {
+    title: "R&D Mechanical",
+    description: "Prototyping, CAD, and fabrication for the next generation of robots.",
+    src: "/videos/feature-3.mp4",
+    poster: "/img/posters/feature-3.webp",
+    details: (
+      <>
+        <p className="text-paper-muted">
+          Our mechanical R&amp;D team pushes robot design forward through
+          prototyping and advanced manufacturing.
+        </p>
+        <FeatureList
+          heading="Focus areas"
+          items={[
+            "CAD design in SolidWorks and Fusion 360",
+            "3D printing and rapid prototyping",
+            "CNC machining and precision fabrication",
+            "Mechanism optimization and testing",
+          ]}
+        />
+      </>
+    ),
+  },
+  software: {
+    title: "R&D Software",
+    description: "Autonomous code, control systems, and AI for smarter robots.",
+    src: "/videos/feature-4.mp4",
+    poster: "/img/posters/feature-4.webp",
+    details: (
+      <>
+        <p className="text-paper-muted">
+          Our software R&amp;D team builds the systems that make our robots
+          smarter and more capable.
+        </p>
+        <FeatureList
+          heading="Technologies"
+          items={[
+            "Autonomous path planning and motion control",
+            "Computer vision and sensor fusion",
+            "PID tuning and control systems",
+            "Data logging and performance analysis",
+          ]}
+        />
+      </>
+    ),
+  },
 };
 
 const Features = () => {
-  // Card content data
-  const cardData = {
-    departments: {
-      title: "Our Departments",
-      description: "Three specialized teams: VEX U competing at the collegiate level, plus R&D Mechanical and R&D Software working on independent robotics research projects.",
-      src: "videos/bet.mp4",
-      expandedContent: (
-        <div className="grid gap-6 md:grid-cols-3">
-          <div className="rounded-lg bg-white/5 p-4">
-            <h3 className="mb-2 text-xl font-bold text-[#FF5F05]">VEX U</h3>
-            <p className="text-sm opacity-70">Our competitive collegiate team designs and builds robots to compete at regional, state, and world championship events.</p>
-          </div>
-          <div className="rounded-lg bg-white/5 p-4">
-            <h3 className="mb-2 text-xl font-bold text-[#FF5F05]">R&D Mechanical</h3>
-            <p className="text-sm opacity-70">Independent research projects focused on prototyping, CAD design, and fabricating innovative mechanisms outside of competition.</p>
-          </div>
-          <div className="rounded-lg bg-white/5 p-4">
-            <h3 className="mb-2 text-xl font-bold text-[#FF5F05]">R&D Software</h3>
-            <p className="text-sm opacity-70">Independent research projects developing autonomous systems, computer vision, and control algorithms for robotics innovation.</p>
-          </div>
-        </div>
-      )
+  const sectionRef = useRef(null);
+
+  // One batched ScrollTrigger reveals every card as it enters the viewport.
+  useGSAP(
+    () => {
+      if (prefersReducedMotion()) return;
+      gsap.set(".bento-reveal", { opacity: 0, y: 60, scale: 0.92 });
+      ScrollTrigger.batch(".bento-reveal", {
+        start: "top 90%",
+        onEnter: (els) =>
+          gsap.to(els, { opacity: 1, y: 0, scale: 1, duration: 1, ease: "power3.out", stagger: 0.12, overwrite: true }),
+        onLeaveBack: (els) =>
+          gsap.to(els, { opacity: 0, y: 60, scale: 0.92, duration: 0.4, overwrite: true }),
+      });
     },
-    vexu: {
-      title: "VEXU",
-      description: "Our competitive collegiate VEX U team, designing and building advanced robots for international competition.",
-      src: "videos/feature-2.mp4",
-      expandedContent: (
-        <div className="space-y-4">
-          <p className="opacity-70">VEX U is the collegiate division of the VEX Robotics Competition, where university teams design and build robots to compete in annual game challenges.</p>
-          <div className="rounded-lg bg-white/5 p-4">
-            <h3 className="mb-2 text-lg font-bold text-[#FF5F05]">What We Do</h3>
-            <ul className="list-inside list-disc space-y-1 text-sm opacity-70">
-              <li>Design and build competition robots within strict constraints</li>
-              <li>Compete at regional, state, and world championship events</li>
-              <li>Collaborate across mechanical, electrical, and software disciplines</li>
-              <li>Document our engineering process for judged awards</li>
-            </ul>
-          </div>
-        </div>
-      )
-    },
-    mechanical: {
-      title: "R&D Mechanical",
-      description: "Mechanical research and development—prototyping, CAD, and fabrication for next-generation robotics.",
-      src: "videos/feature-3.mp4",
-      expandedContent: (
-        <div className="space-y-4">
-          <p className="opacity-70">Our mechanical R&D team pushes the boundaries of robot design through innovative prototyping and advanced manufacturing.</p>
-          <div className="rounded-lg bg-white/5 p-4">
-            <h3 className="mb-2 text-lg font-bold text-[#FF5F05]">Focus Areas</h3>
-            <ul className="list-inside list-disc space-y-1 text-sm opacity-70">
-              <li>CAD design using Solidworks and Fusion 360</li>
-              <li>3D printing and rapid prototyping</li>
-              <li>CNC machining and precision fabrication</li>
-              <li>Mechanism optimization and testing</li>
-            </ul>
-          </div>
-        </div>
-      )
-    },
-    software: {
-      title: "R&D Software",
-      description: "Software research and development—autonomous code, control systems, and AI for robotics innovation.",
-      src: "videos/feature-4.mp4",
-      expandedContent: (
-        <div className="space-y-4">
-          <p className="opacity-70">Our software R&D team develops intelligent systems that make our robots smarter and more capable.</p>
-          <div className="rounded-lg bg-white/5 p-4">
-            <h3 className="mb-2 text-lg font-bold text-[#FF5F05]">Technologies</h3>
-            <ul className="list-inside list-disc space-y-1 text-sm opacity-70">
-              <li>Autonomous path planning and motion control</li>
-              <li>Computer vision and sensor fusion</li>
-              <li>PID tuning and control systems</li>
-              <li>Data logging and performance analysis</li>
-            </ul>
-          </div>
-        </div>
-      )
-    }
-  };
-
-  // Refs for each card
-  const radiantRef = useRef(null);
-  const zigmaRef = useRef(null);
-  const nexusRef = useRef(null);
-  const azulRef = useRef(null);
-  const moreComingRef = useRef(null);
-  const videoCardRef = useRef(null);
-  const featuresSectionRef = useRef(null);
-  const { y: scrollY } = useWindowScroll();
-
-  // Scroll animations for all cards
-  useGSAP(() => {
-    // Create a timeline for staggered animations
-    const tl = gsap.timeline();
-
-    // Radiant card animation
-    gsap.fromTo(radiantRef.current, 
-      { 
-        opacity: 0, 
-        scale: 0.7,
-        y: 80
-      },
-      {
-        opacity: 1,
-        scale: 1,
-        y: 0,
-        duration: 1.2,
-        ease: "power3.out",
-        scrollTrigger: {
-          trigger: radiantRef.current,
-          start: "top 90%",
-          end: "bottom 40%",
-          toggleActions: "play none none reverse"
-        }
-      }
-    );
-
-    // VEXU card animation
-    gsap.fromTo(zigmaRef.current,
-      {
-        opacity: 0,
-        scale: 0.7,
-        y: 80
-      },
-      {
-        opacity: 1,
-        scale: 1,
-        y: 0,
-        duration: 1.2,
-        ease: "power3.out",
-        scrollTrigger: {
-          trigger: zigmaRef.current,
-          start: "top 90%",
-          end: "bottom 40%",
-          toggleActions: "play none none reverse"
-        }
-      }
-    );
-
-    // R&D Mechanical card animation
-    gsap.fromTo(nexusRef.current,
-      {
-        opacity: 0,
-        scale: 0.7,
-        y: 80
-      },
-      {
-        opacity: 1,
-        scale: 1,
-        y: 0,
-        duration: 1.2,
-        ease: "power3.out",
-        force3D: true,
-        scrollTrigger: {
-          trigger: nexusRef.current,
-          start: "top 90%",
-          end: "bottom 40%",
-          toggleActions: "play none none reverse"
-        }
-      }
-    );
-
-    // R&D Software card animation
-    gsap.fromTo(azulRef.current,
-      {
-        opacity: 0,
-        scale: 0.7,
-        y: 80
-      },
-      {
-        opacity: 1,
-        scale: 1,
-        y: 0,
-        duration: 1.2,
-        ease: "power3.out",
-        force3D: true,
-        scrollTrigger: {
-          trigger: azulRef.current,
-          start: "top 90%",
-          end: "bottom 40%",
-          toggleActions: "play none none reverse"
-        }
-      }
-    );
-
-    // More coming soon card animation
-    gsap.fromTo(moreComingRef.current,
-      {
-        opacity: 0,
-        scale: 0.7,
-        y: 80
-      },
-      {
-        opacity: 1,
-        scale: 1,
-        y: 0,
-        duration: 1.2,
-        ease: "power3.out",
-        scrollTrigger: {
-          trigger: moreComingRef.current,
-          start: "top 90%",
-          end: "bottom 40%",
-          toggleActions: "play none none reverse"
-        }
-      }
-    );
-
-    // Video card animation
-    gsap.fromTo(videoCardRef.current,
-      {
-        opacity: 0,
-        scale: 0.7,
-        y: 80
-      },
-      {
-        opacity: 1,
-        scale: 1,
-        y: 0,
-        duration: 1.2,
-        ease: "power3.out",
-        scrollTrigger: {
-          trigger: videoCardRef.current,
-          start: "top 90%",
-          end: "bottom 40%",
-          toggleActions: "play none none reverse"
-        }
-      }
-    );
-  });
-
-  // Scroll-based video pause/resume for Features section
-  useEffect(() => {
-    if (!featuresSectionRef.current) return;
-
-    const featuresRect = featuresSectionRef.current.getBoundingClientRect();
-    const viewportHeight = window.innerHeight;
-    const padding = 100; // Extra padding for off-screen detection
-
-    // Check if features section is off-screen with padding
-    const isOffScreen = featuresRect.bottom < -padding || featuresRect.top > viewportHeight + padding;
-
-    // Get all video elements in the features section
-    const videos = featuresSectionRef.current.querySelectorAll('video');
-    
-    videos.forEach(video => {
-      if (isOffScreen) {
-        // Pause video when off-screen
-        if (!video.paused) {
-          video.pause();
-        }
-      } else {
-        // Resume video when back on-screen
-        if (video.paused) {
-          video.play();
-        }
-      }
-    });
-  }, [scrollY]);
+    { scope: sectionRef }
+  );
 
   return (
-    <section id="departments" ref={featuresSectionRef} className="bg-black pb-52">
-      <div className="container mx-auto px-3 md:px-10">
-        <div className="px-5 py-32">
-          <p className="font-circular-web text-lg text-blue-50">
-            Explore All We Do
-          </p>
-          <p className="max-w-md font-circular-web text-lg text-blue-50 opacity-50">
-            From competitive VEX U robotics to independent R&D projects in mechanical and software engineering—discover how we push the boundaries of innovation.
+    <section id="departments" ref={sectionRef} className="bg-ink pb-40">
+      <div className="mx-auto max-w-7xl px-4 md:px-10">
+        <div className="max-w-xl py-28 md:py-32">
+          <h2 className="section-title text-paper">Explore all we do</h2>
+          <p className="mt-4 text-lg leading-relaxed text-paper-muted">
+            From competitive VEX U robotics to independent R&amp;D in mechanical
+            and software engineering.
           </p>
         </div>
 
-        <BentoTilt ref={radiantRef} className="relative mb-7 h-96 w-full md:h-[65vh]">
-          <FlippableBentoCard
-            src={cardData.departments.src}
-            title={cardData.departments.title}
-            description={cardData.departments.description}
-            isComingSoon
-            expandedContent={cardData.departments.expandedContent}
-          />
+        <BentoTilt className="relative mb-6 h-[28rem] w-full md:h-[65vh]">
+          <FlippableBentoCard {...DEPARTMENTS.departments} />
         </BentoTilt>
 
-        <div className="grid h-[135vh] w-full grid-cols-2 grid-rows-3 gap-7">
-          <BentoTilt ref={zigmaRef} className="relative col-span-2 row-span-1 md:col-span-1 md:row-span-2">
-            <FlippableBentoCard
-              src={cardData.vexu.src}
-              title={cardData.vexu.title}
-              description={cardData.vexu.description}
-              isComingSoon
-              expandedContent={cardData.vexu.expandedContent}
-            />
+        <div className="grid w-full grid-cols-1 gap-6 md:h-[135vh] md:grid-cols-2 md:grid-rows-3">
+          <BentoTilt className="relative h-[28rem] md:row-span-2 md:h-auto">
+            <FlippableBentoCard {...DEPARTMENTS.vexu} />
           </BentoTilt>
 
-          <BentoTilt ref={nexusRef} className="relative col-span-1 row-span-1 ms-32 md:ms-0">
-            <FlippableBentoCard
-              src={cardData.mechanical.src}
-              title={cardData.mechanical.title}
-              description={cardData.mechanical.description}
-              isComingSoon
-              expandedContent={cardData.mechanical.expandedContent}
-            />
+          <BentoTilt className="relative h-96 md:h-auto">
+            <FlippableBentoCard {...DEPARTMENTS.mechanical} />
           </BentoTilt>
 
-          <BentoTilt ref={azulRef} className="relative col-span-1 me-14 md:me-0">
-            <FlippableBentoCard
-              src={cardData.software.src}
-              title={cardData.software.title}
-              description={cardData.software.description}
-              isComingSoon
-              expandedContent={cardData.software.expandedContent}
-            />
+          <BentoTilt className="relative h-96 md:h-auto">
+            <FlippableBentoCard {...DEPARTMENTS.software} />
           </BentoTilt>
 
-          <BentoTilt ref={moreComingRef} className="bento-tilt_2">
-            <div className="flex size-full flex-col justify-between !bg-[#FF5F05] p-5">
-              <h1 className="bento-title special-font max-w-64 text-black">
-                More coming soon.
-              </h1>
-
-              <TiLocationArrow className="m-5 scale-[5] self-end" />
+          <BentoTilt className="relative h-64 md:h-auto" innerClassName="overflow-hidden rounded-card">
+            <div className="flex size-full flex-col justify-between bg-accent p-5 md:p-7">
+              <h3 className="section-title max-w-64 text-ink">More coming soon.</h3>
+              <TiLocationArrow className="self-end text-7xl text-ink" aria-hidden="true" />
             </div>
           </BentoTilt>
 
-          <BentoTilt ref={videoCardRef} className="bento-tilt_2">
-            <CrossfadeVideo
-              src="videos/feature-5.mp4"
-              crossfadeDuration={1}
-              className="size-full"
-            />
+          <BentoTilt className="relative h-64 md:h-auto" innerClassName="relative overflow-hidden rounded-card border border-white/10">
+            <LazyVideo src="/videos/feature-5.mp4" poster="/img/posters/feature-5.webp" />
           </BentoTilt>
         </div>
       </div>

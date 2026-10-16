@@ -4,27 +4,27 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        title: ["Russo One", "sans-serif"],
-        general: ["Manrope", "sans-serif"],
-        "circular-web": ["Manrope", "sans-serif"],
-        "robert-medium": ["Manrope", "sans-serif"],
-        "robert-regular": ["Manrope", "sans-serif"],
+        title: ["Russo One", "system-ui", "sans-serif"],
+        general: ["Manrope Variable", "system-ui", "sans-serif"],
       },
       colors: {
-        blue: {
-          50: "#DFDFF0",
-          75: "#dfdff2",
-          100: "#F0F2FA",
-          200: "#010101",
-          300: "#4FB7DD",
+        // Illinois brand palette. One accent (orange) across the whole page.
+        ink: {
+          DEFAULT: "#0A101C", // page background
+          800: "#0E1828", // raised surface
+          700: "#13294B", // Illinois navy
         },
-        violet: {
-          300: "#5724ff",
+        paper: {
+          DEFAULT: "#EEF1F7", // primary text
+          muted: "#A3ADC2", // secondary text
         },
-        yellow: {
-          100: "#8e983f",
-          300: "#edff66",
+        accent: {
+          DEFAULT: "#FF5F05", // Illinois orange
+          hover: "#FF7A2E",
         },
+      },
+      borderRadius: {
+        card: "1rem",
       },
     },
   },

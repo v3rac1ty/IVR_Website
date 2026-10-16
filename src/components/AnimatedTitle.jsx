@@ -1,16 +1,21 @@
-import { gsap } from "gsap";
-import { useEffect, useRef } from "react";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useGSAP } from "@gsap/react";
+import { useRef } from "react";
 import clsx from "clsx";
 
-gsap.registerPlugin(ScrollTrigger);
+import { gsap, prefersReducedMotion } from "../lib/motion";
 
-const AnimatedTitle = ({ title, containerClass }) => {
+// Title lines are separated by "<br />". Words fly in as the title scrolls into view.
+const AnimatedTitle = ({ title, containerClass, as: Tag = "h2" }) => {
   const containerRef = useRef(null);
 
-  useEffect(() => {
-    const ctx = gsap.context(() => {
-      const titleAnimation = gsap.timeline({
+  useGSAP(
+    () => {
+      if (prefersReducedMotion()) return;
+      gsap.to(".animated-word", {
+        opacity: 1,
+        transform: "translate3d(0, 0, 0) rotateY(0deg) rotateX(0deg)",
+        ease: "power2.inOut",
+        stagger: 0.02,
         scrollTrigger: {
           trigger: containerRef.current,
           start: "100 bottom",
@@ -18,39 +23,32 @@ const AnimatedTitle = ({ title, containerClass }) => {
           toggleActions: "play none none reverse",
         },
       });
+    },
+    { scope: containerRef }
+  );
 
-      titleAnimation.to(
-        ".animated-word",
-        {
-          opacity: 1,
-          transform: "translate3d(0, 0, 0) rotateY(0deg) rotateX(0deg)",
-          ease: "power2.inOut",
-          stagger: 0.02,
-        },
-        0
-      );
-    }, containerRef);
-
-    return () => ctx.revert(); // Clean up on unmount
-  }, []);
+  const lines = title.split("<br />");
 
   return (
-    <div ref={containerRef} className={clsx("animated-title", containerClass)}>
-      {title.split("<br />").map((line, index) => (
-        <div
+    <Tag
+      ref={containerRef}
+      className={clsx("animated-title", containerClass)}
+      aria-label={lines.join(" ")}
+    >
+      {lines.map((line, index) => (
+        <span
           key={index}
-          className="flex-center max-w-full flex-wrap gap-2 px-10 md:gap-3"
+          aria-hidden="true"
+          className="flex-center max-w-full flex-wrap gap-x-3 gap-y-1 px-6 md:gap-x-4"
         >
           {line.split(" ").map((word, idx) => (
-            <span
-              key={idx}
-              className="animated-word"
-              dangerouslySetInnerHTML={{ __html: word }}
-            />
+            <span key={idx} className="animated-word">
+              {word}
+            </span>
           ))}
-        </div>
+        </span>
       ))}
-    </div>
+    </Tag>
   );
 };
 

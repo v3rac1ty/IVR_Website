@@ -7,38 +7,37 @@ import {
 } from "react-icons/fa";
 
 const socialLinks = [
-  { href: "https://discord.com", icon: <FaDiscord /> },
-  { href: "https://www.youtube.com/@illinivexrobotics", icon: <FaYoutube /> },
-  { href: "https://www.instagram.com/illinivexrobotics/", icon: <FaInstagram /> },
-  { href: "https://www.linkedin.com/company/illini-vex-robotics/", icon: <FaLinkedin /> },
-  { href: "https://www.tiktok.com/@illini.vex.roboti", icon: <FaTiktok /> },
+  { label: "Discord", href: "https://discord.com", icon: <FaDiscord /> },
+  { label: "YouTube", href: "https://www.youtube.com/@illinivexrobotics", icon: <FaYoutube /> },
+  { label: "Instagram", href: "https://www.instagram.com/illinivexrobotics/", icon: <FaInstagram /> },
+  { label: "LinkedIn", href: "https://www.linkedin.com/company/illini-vex-robotics/", icon: <FaLinkedin /> },
+  { label: "TikTok", href: "https://www.tiktok.com/@illini.vex.roboti", icon: <FaTiktok /> },
 ];
 
 const Footer = () => {
   return (
-    <footer className="w-screen bg-[#13294B] py-4 text-[#FF5F05]">
-      <div className="container mx-auto grid grid-cols-1 items-center gap-4 px-4 md:grid-cols-3">
-        <div className="hidden md:block" />
+    <footer className="w-full border-t border-white/10 bg-ink-700 py-8 text-paper">
+      <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-6 px-4 md:grid-cols-3 md:px-10">
+        <img src="/img/opt/logo.webp" alt="Illini VEX Robotics" width={112} height={44} className="mx-auto h-auto w-28 md:mx-0" loading="lazy" decoding="async" />
 
-        <div className="flex w-full justify-center gap-4">
-          {socialLinks.map((link, index) => (
+        <div className="flex w-full justify-center gap-2">
+          {socialLinks.map((link) => (
             <a
-              key={index}
+              key={link.label}
               href={link.href}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[#FF5F05] transition-colors duration-500 ease-in-out hover:text-white"
+              aria-label={link.label}
+              className="flex size-11 items-center justify-center rounded-full text-xl text-accent transition-colors duration-300 hover:bg-white/10 hover:text-paper"
             >
               {link.icon}
             </a>
           ))}
         </div>
 
-        <div className="flex w-full justify-center md:justify-end">
-          <p className="text-center text-sm font-light md:text-right">
-            © ILLINI VEX Robotics 2025. All rights reserved.
-          </p>
-        </div>
+        <p className="text-center text-sm text-paper-muted md:text-right">
+          © Illini VEX Robotics {new Date().getFullYear()}. All rights reserved.
+        </p>
       </div>
     </footer>
   );

@@ -1,52 +1,51 @@
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useEffect, useState } from "react";
 
 const VideoContext = createContext();
 
 export const useVideo = () => {
   const context = useContext(VideoContext);
   if (!context) {
-    throw new Error('useVideo must be used within a VideoProvider');
+    throw new Error("useVideo must be used within a VideoProvider");
   }
   return context;
 };
 
+// Sound comes straight from the hero <video> (unmuted), so there is no second
+// media element downloading and decoding the same file just for its audio.
 export const VideoProvider = ({ children }) => {
-  const [currentVideoSrc, setCurrentVideoSrc] = useState('videos/hero-1.mp4');
-  const [currentVideoTime, setCurrentVideoTime] = useState(0);
-  const [mainVideoRef, setMainVideoRefState] = useState(null);
-  const [isAudioPlaying, setIsAudioPlaying] = useState(true);
+  // What the visitor wants (defaults to on, like before)
+  const [soundOn, setSoundOn] = useState(true);
+  // Browsers block unmuted playback until the first user gesture
+  const [unlocked, setUnlocked] = useState(false);
 
-  const updateCurrentVideo = (src) => {
-    setCurrentVideoSrc(src);
-  };
+  useEffect(() => {
+    if (unlocked) return;
+    const unlock = (e) => {
+      // The sound toggle handles its own first click
+      if (e.target.closest?.("[data-sound-toggle]")) return;
+      setUnlocked(true);
+    };
+    window.addEventListener("pointerdown", unlock, { once: true });
+    window.addEventListener("keydown", unlock, { once: true });
+    return () => {
+      window.removeEventListener("pointerdown", unlock);
+      window.removeEventListener("keydown", unlock);
+    };
+  }, [unlocked]);
 
-  const updateCurrentVideoTime = (time) => {
-    setCurrentVideoTime(time);
-  };
-
-  const setMainVideoRef = (ref) => {
-    setMainVideoRefState(ref);
-  };
-
-  const getCurrentVideoTime = () => {
-    return mainVideoRef?.current?.currentTime || 0;
-  };
-
-  const updateAudioState = (playing) => {
-    setIsAudioPlaying(playing);
+  const toggleSound = () => {
+    if (!unlocked) {
+      setUnlocked(true);
+      setSoundOn(true);
+      return;
+    }
+    setSoundOn((on) => !on);
   };
 
   return (
-    <VideoContext.Provider value={{ 
-      currentVideoSrc, 
-      updateCurrentVideo, 
-      currentVideoTime,
-      updateCurrentVideoTime,
-      setMainVideoRef,
-      getCurrentVideoTime,
-      isAudioPlaying,
-      updateAudioState
-    }}>
+    <VideoContext.Provider
+      value={{ soundActive: soundOn && unlocked, toggleSound }}
+    >
       {children}
     </VideoContext.Provider>
   );
