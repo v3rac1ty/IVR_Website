@@ -1,87 +1,49 @@
 import { useState } from "react";
-import clsx from "clsx";
 
-import AnimatedTitle from "./AnimatedTitle";
 import Button from "./Button";
+import SectionHeader from "./SectionHeader";
 
 const FORM_ENDPOINT = "https://formsubmit.co/ajax/60d5184cffd06c5c654909b93314e04c";
 
-const ImageClipBox = ({ src, clipClass, width, height }) => (
-  <div className={clipClass}>
-    <img src={src} alt="" width={width} height={height} loading="lazy" decoding="async" />
-  </div>
-);
-
+// Split card: pitch and form on one side, a real build photo on the other.
 const Contact = () => {
-  const [open, setOpen] = useState(false);
   const [sent, setSent] = useState(false);
 
   return (
-    <section id="contact" className="my-20 w-full px-4 md:px-10">
-      <div className="relative mx-auto max-w-7xl overflow-hidden rounded-card border border-white/10 bg-ink-800 py-20 text-paper">
-        <div aria-hidden="true" className="pointer-events-none absolute -left-20 top-0 z-0 hidden h-full w-96 overflow-hidden opacity-50 lg:block">
-          <ImageClipBox src="/img/opt/contact-1.webp" clipClass="contact-clip-path-1" width={800} height={546} />
-          <ImageClipBox src="/img/opt/contact-2.webp" clipClass="contact-clip-path-2 translate-y-60 lg:translate-y-40" width={800} height={508} />
+    <section id="contact" className="w-full px-4 py-24 md:px-10 md:py-32">
+      <div className="reveal mx-auto grid max-w-7xl overflow-hidden rounded-card border border-white/10 bg-ink-800 text-paper md:grid-cols-2">
+        <div className="relative h-56 md:order-2 md:h-auto">
+          <img
+            src="/img/posters/hero-3.webp"
+            alt="Team members wiring a competition robot beside the field"
+            width={1280}
+            height={640}
+            className="absolute inset-0 size-full object-cover"
+            loading="lazy"
+            decoding="async"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-ink-800 via-transparent to-transparent md:bg-gradient-to-r" />
         </div>
 
-        <div aria-hidden="true" className="pointer-events-none absolute -right-10 top-10 z-0 hidden w-80 opacity-50 lg:block">
-          <ImageClipBox src="/img/opt/swordman-partial.webp" clipClass="absolute md:scale-125" width={800} height={984} />
-          <ImageClipBox src="/img/opt/swordman.webp" clipClass="sword-man-clip-path md:scale-125" width={800} height={984} />
-        </div>
-
-        <div className="relative z-20 flex flex-col items-center px-4 text-center">
-          <p className="mb-8 text-xs font-bold uppercase tracking-[0.2em] text-accent">
-            Sponsor Illini VEX
-          </p>
-
-          <AnimatedTitle
-            title="Support the <br /> next generation of <br /> innovators"
-            containerClass="!text-4xl !leading-[.95] md:!text-[4.5rem]"
+        <div className="p-6 py-10 sm:p-10 md:p-14">
+          <SectionHeader
+            size="card"
+            title="Support the next generation of engineers"
+            intro="Sponsorship funds equipment, competition fees, travel, and outreach that grows STEM opportunities across Illinois. Send us a note and we'll follow up with sponsorship details."
           />
 
-          <p className="mt-8 max-w-xl text-base leading-relaxed text-paper-muted">
-            Partner with Illini VEX Robotics to give students the tools,
-            mentorship, and travel support they need to compete and learn.
-            Sponsorship funds equipment, competition fees, travel, and outreach
-            that grows STEM opportunities across Illinois.
-          </p>
-
-          <Button
-            title={open ? "Close form" : "Contact us"}
-            containerClass="mt-8"
-            aria-expanded={open}
-            aria-controls="contact-form"
-            onClick={() => {
-              setOpen((s) => !s);
-              setSent(false);
-            }}
-          />
-
-          {sent && !open && (
-            <p role="status" className="mt-6 rounded-lg bg-accent/15 px-4 py-2 text-sm font-semibold text-accent">
-              Thanks! Your message was sent. We&apos;ll get back to you soon.
-            </p>
-          )}
-
-          <div
-            id="contact-form"
-            className={clsx(
-              "grid w-full max-w-xl transition-all duration-500 ease-out",
-              open ? "mt-8 grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
-            )}
-            inert={open ? undefined : ""}
-          >
-            <div className="min-h-0 overflow-hidden">
-              <div className="rounded-card border border-white/10 bg-ink p-6 text-left">
-                <ContactForm
-                  onClose={() => setOpen(false)}
-                  onSent={() => {
-                    setSent(true);
-                    setOpen(false);
-                  }}
-                />
+          <div className="mt-8">
+            {sent ? (
+              <div role="status" className="rounded-card border border-accent/40 bg-accent/10 p-6">
+                <p className="font-semibold text-paper">Thanks! Your message was sent.</p>
+                <p className="mt-1 text-sm text-paper-muted">We&apos;ll get back to you soon.</p>
+                <button type="button" onClick={() => setSent(false)} className="mt-4 text-sm font-semibold text-accent hover:text-accent-hover">
+                  Send another message
+                </button>
               </div>
-            </div>
+            ) : (
+              <ContactForm onSent={() => setSent(true)} />
+            )}
           </div>
         </div>
       </div>
@@ -91,7 +53,7 @@ const Contact = () => {
 
 export default Contact;
 
-const ContactForm = ({ onClose, onSent }) => {
+const ContactForm = ({ onSent }) => {
   const [email, setEmail] = useState("");
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
@@ -180,11 +142,8 @@ const ContactForm = ({ onClose, onSent }) => {
         </p>
       )}
 
-      <div className="mt-2 flex items-center justify-between">
+      <div className="mt-2">
         <Button type="submit" disabled={loading} title={loading ? "Sending..." : "Send message"} />
-        <button type="button" onClick={onClose} className="p-2 text-sm font-semibold text-paper-muted hover:text-paper">
-          Cancel
-        </button>
       </div>
     </form>
   );

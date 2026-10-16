@@ -5,21 +5,7 @@ import { HiOutlineMenuAlt4, HiX } from "react-icons/hi";
 
 import { useVideo } from "../contexts/VideoContext";
 import { ScrollTrigger } from "../lib/motion";
-
-const navItems = [
-  { label: "About", href: "about" },
-  { label: "Departments", href: "departments" },
-  { label: "Events", href: "story" },
-  { label: "Sponsors", href: "sponsors" },
-  { label: "Contact", href: "contact" },
-];
-
-const MERCH_URL = "https://guardianproline.com/collections/illini-robotics";
-
-const scrollToSection = (e, id) => {
-  e.preventDefault();
-  document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
-};
+import { NAV_ITEMS, MERCH_URL, scrollToSection } from "../data/nav";
 
 const NavBar = () => {
   const { soundActive, toggleSound } = useVideo();
@@ -50,6 +36,7 @@ const NavBar = () => {
   return (
     <div
       ref={navContainerRef}
+      data-nav
       className={clsx(
         "fixed inset-x-3 top-3 z-50 transition-all duration-300 ease-out sm:inset-x-6 sm:top-4",
         isFloating && "floating-nav",
@@ -90,7 +77,7 @@ const NavBar = () => {
 
           <div className="flex h-full items-center gap-2">
             <div className="hidden md:block">
-              {navItems.map((item) => (
+              {NAV_ITEMS.map((item) => (
                 <a
                   key={item.href}
                   href={`#${item.href}`}
@@ -142,7 +129,7 @@ const NavBar = () => {
         >
           <div className="min-h-0">
             <ul className="flex flex-col gap-1 p-3">
-              {navItems.map((item) => (
+              {NAV_ITEMS.map((item) => (
                 <li key={item.href}>
                   <a
                     href={`#${item.href}`}

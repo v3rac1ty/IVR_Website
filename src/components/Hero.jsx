@@ -1,6 +1,6 @@
 import { useGSAP } from "@gsap/react";
 import { TiLocationArrow } from "react-icons/ti";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import Button from "./Button";
 import VideoPreview from "./VideoPreview";
@@ -39,6 +39,17 @@ const HERO_VIDEOS = [
 
 const PREVIEW_SIZE = 256; // px, matches size-64 on the preview tile
 
+// Splits a word into letters that rise out of a clipped line during the intro.
+const SplitWord = ({ text }) => (
+  <span aria-hidden="true" className="inline-block overflow-hidden pb-[0.04em] align-bottom">
+    {[...text].map((ch, i) => (
+      <span key={i} className="hero-char inline-block">
+        {ch}
+      </span>
+    ))}
+  </span>
+);
+
 const Hero = () => {
   const [index, setIndex] = useState(0);
   // Index of the video being transitioned in (poster grows from the preview tile)
@@ -47,34 +58,84 @@ const Hero = () => {
   const heroRef = useRef(null);
   const videoRef = useRef(null);
   const overlayRef = useRef(null);
+  const mediaRef = useRef(null);
   const inViewRef = useRef(true);
   const { soundActive } = useVideo();
 
   const current = HERO_VIDEOS[index];
   const nextIndex = (index + 1) % HERO_VIDEOS.length;
 
-  // Only one <video> exists in the hero. Pause it whenever the hero is off-screen.
-  useEffect(() => {
-    const video = videoRef.current;
-    const hero = heroRef.current;
-    if (!video || !hero) return;
+  // Audio fades instead of cutting: volume eases toward a target with requestAnimationFrame.
+  // Target = how much of the hero is on screen (so scrolling away softens it), or 0 when muted.
+  // (iOS Safari ignores video.volume, so there it simply mutes/unmutes.)
+  const fadeFrame = useRef(0);
+  const soundRef = useRef(soundActive);
+  const visibleRef = useRef(1);
 
-    const observer = new IntersectionObserver(([entry]) => {
-      inViewRef.current = entry.isIntersecting;
-      if (entry.isIntersecting) video.play().catch(() => {});
-      else video.pause();
-    });
-    observer.observe(hero);
-    return () => observer.disconnect();
-  }, []);
-
-  // Sound toggle in the navbar just unmutes this same video.
-  useEffect(() => {
+  const fadeVolume = useCallback((target, duration, onDone) => {
     const video = videoRef.current;
     if (!video) return;
-    video.muted = !soundActive;
-    if (inViewRef.current && video.paused) video.play().catch(() => {});
-  }, [soundActive]);
+    cancelAnimationFrame(fadeFrame.current);
+    const from = video.volume;
+    const start = performance.now();
+    const tick = (now) => {
+      const t = Math.min(1, (now - start) / duration);
+      const eased = t * (2 - t); // ease-out
+      video.volume = Math.max(0, Math.min(1, from + (target - from) * eased));
+      if (t < 1) fadeFrame.current = requestAnimationFrame(tick);
+      else onDone?.();
+    };
+    fadeFrame.current = requestAnimationFrame(tick);
+  }, []);
+
+  const syncAudio = useCallback(
+    (duration = 700) => {
+      const video = videoRef.current;
+      if (!video) return;
+      const visible = visibleRef.current;
+
+      if (visible > 0 && video.paused) video.play().catch(() => {});
+
+      if (soundRef.current && visible > 0) {
+        if (video.muted) {
+          video.volume = 0;
+          video.muted = false;
+        }
+        fadeVolume(Math.min(1, visible * 1.25), duration);
+      } else {
+        fadeVolume(0, duration, () => {
+          video.muted = true;
+          if (visibleRef.current === 0) video.pause();
+        });
+      }
+    },
+    [fadeVolume]
+  );
+
+  // Track how much of the hero is visible; volume follows it, and the video pauses once it's gone.
+  useEffect(() => {
+    const hero = heroRef.current;
+    if (!hero) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        visibleRef.current = entry.isIntersecting ? entry.intersectionRatio : 0;
+        inViewRef.current = entry.isIntersecting;
+        syncAudio(400);
+      },
+      { threshold: Array.from({ length: 11 }, (_, i) => i / 10) }
+    );
+    observer.observe(hero);
+    return () => {
+      observer.disconnect();
+      cancelAnimationFrame(fadeFrame.current);
+    };
+  }, [syncAudio]);
+
+  // Sound toggle in the navbar fades this same video's audio in or out.
+  useEffect(() => {
+    soundRef.current = soundActive;
+    syncAudio(700);
+  }, [soundActive, syncAudio]);
 
   const handlePreviewClick = () => {
     if (incoming !== null) return;
@@ -123,6 +184,30 @@ const Hero = () => {
     const t = setTimeout(revealVideo, 2500);
     return () => clearTimeout(t);
   });
+
+  // First-load intro: the video opens from a small window, the headline letters rise,
+  // then the copy, button and navbar settle in.
+  useGSAP(
+    () => {
+      if (prefersReducedMotion()) return;
+      gsap
+        .timeline({ defaults: { ease: "power4.out" } })
+        .from(mediaRef.current, {
+          clipPath: "inset(32% 36% 32% 36% round 28px)",
+          scale: 1.15,
+          duration: 1.6,
+          ease: "expo.inOut",
+        })
+        .from(".hero-char", { yPercent: 115, duration: 1, stagger: 0.035 }, "-=0.75")
+        .from(".hero-fade", { y: 24, opacity: 0, duration: 0.8, stagger: 0.1 }, "-=0.6")
+        .from(
+          document.querySelector("[data-nav]"),
+          { y: -24, opacity: 0, duration: 0.8, clearProps: "transform,opacity" },
+          "<"
+        );
+    },
+    { scope: heroRef }
+  );
 
   useGSAP(() => {
     if (prefersReducedMotion()) return;
@@ -183,6 +268,7 @@ const Hero = () => {
           />
         )}
 
+        <div ref={mediaRef} className="absolute inset-0">
         <video
           ref={videoRef}
           src={current.src}
@@ -197,22 +283,23 @@ const Hero = () => {
         />
 
         {/* Scrim keeps the headline readable on bright frames */}
-        <div className="pointer-events-none absolute inset-0 z-[35] bg-gradient-to-b from-ink/50 via-transparent to-ink/40" />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-ink/50 via-transparent to-ink/40" />
+        </div>
 
         <p
           aria-hidden="true"
           className="hero-heading absolute bottom-5 right-5 z-40 text-paper"
         >
-          Robotics
+          <SplitWord text="Robotics" />
         </p>
 
         <div className="absolute left-0 top-0 z-40 size-full">
           <div className="mt-24 px-5 sm:px-10">
-            <h1 className="hero-heading text-paper">
-              Redefine<span className="sr-only"> robotics</span>
+            <h1 className="hero-heading text-paper" aria-label="Redefine robotics">
+              <SplitWord text="Redefine" />
             </h1>
 
-            <p className="mb-6 mt-2 max-w-72 text-base font-medium leading-relaxed text-paper/90">
+            <p className="hero-fade mb-6 mt-2 max-w-72 text-base font-medium leading-relaxed text-paper/90">
               From concept to competition.
               <br />
               Design. Build. Win.
@@ -220,6 +307,7 @@ const Hero = () => {
 
             <Button
               id="watch-trailer"
+              containerClass="hero-fade"
               title="Watch Video"
               href={current.link}
               leftIcon={<TiLocationArrow />}

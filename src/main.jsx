@@ -5,6 +5,9 @@ import '@fontsource/russo-one/latin-400.css'
 import '@fontsource-variable/manrope/wght.css'
 import './index.css'
 import App from './App.jsx'
+import { startReveal } from './lib/reveal'
+
+startReveal()
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
