@@ -1,0 +1,17 @@
+Options -MultiViews
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # Send any other hostname to the main site
+  RewriteCond %{HTTP_HOST} !^illinivexu\.web\.illinois\.edu$ [NC]
+  RewriteRule ^(.*)$ https://illinivexu.web.illinois.edu/$1 [R=301,L]
+
+  # Don't rewrite real files or directories
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+
+  # SPA fallback
+  RewriteRule . /index.html [L]
+</IfModule>
