@@ -47,7 +47,16 @@
   }
 
   .section-title {
-    @apply font-title text-4xl uppercase leading-[0.95] md:text-6xl;
+    @apply font-display text-4xl font-extrabold leading-[0.95] tracking-[-0.04em] md:text-6xl;
+  }
+
+  /* Keynote-style headline fill: bright white fading to silver */
+  .text-keynote {
+    background-image: linear-gradient(180deg, #ffffff 35%, #a3adc2 110%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    padding-bottom: 0.1em;
   }
 
   .about-image {
@@ -55,11 +64,11 @@
   }
 
   .animated-title {
-    @apply flex flex-col gap-1 font-title text-5xl uppercase leading-[.9] text-paper sm:px-32 md:text-[5.5rem];
+    @apply flex flex-col font-display text-5xl font-extrabold leading-[0.95] tracking-[-0.045em] text-paper sm:px-8 md:text-[5rem] xl:text-[6.5rem];
   }
 
   .animated-word {
-    @apply opacity-0;
+    @apply text-keynote opacity-0;
     transform: translate3d(10px, 51px, -60px) rotateY(60deg) rotateX(-40deg);
     transform-origin: 50% 50% -150px !important;
   }

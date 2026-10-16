@@ -183,7 +183,7 @@ const TeamDetails = () => {
                   <span
                     aria-hidden="true"
                     className={clsx(
-                      "pointer-events-none absolute -bottom-4 right-4 hidden select-none whitespace-nowrap font-title text-[11rem] uppercase leading-none text-transparent transition-all duration-[1400ms] ease-out [-webkit-text-stroke:1.5px_rgb(255_255_255/0.1)] motion-reduce:transition-none md:block lg:text-[14rem]",
+                      "pointer-events-none absolute -bottom-4 right-4 hidden select-none whitespace-nowrap font-display text-[11rem] font-extrabold leading-none -tracking-wider text-transparent transition-all duration-[1400ms] ease-out [-webkit-text-stroke:1.5px_rgb(255_255_255/0.1)] motion-reduce:transition-none md:block lg:text-[14rem]",
                       isActive ? "translate-x-0 opacity-100" : "translate-x-32 opacity-0"
                     )}
                   >
@@ -192,7 +192,7 @@ const TeamDetails = () => {
 
                   <div className="relative p-6 md:max-w-2xl md:p-12 lg:p-14">
                     <span style={bar.style} className={clsx(bar.className, "block h-1 w-12 rounded-full bg-accent")} />
-                    <h3 className="mt-5 font-title text-4xl uppercase leading-[0.9] text-paper sm:text-5xl md:text-7xl">
+                    <h3 className="mt-5 font-display text-4xl font-extrabold leading-[0.95] tracking-[-0.04em] text-paper sm:text-5xl md:text-7xl">
                       <span className="sr-only">{team.title}</span>
                       <span aria-hidden="true">
                         {[...team.title].map((ch, k) => (

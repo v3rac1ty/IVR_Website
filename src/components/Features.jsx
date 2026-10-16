@@ -64,7 +64,7 @@ export const TeamCard = ({ title, tagline, video, poster, target }) => {
 
       <div className="relative z-10 flex size-full flex-col justify-between p-5 md:p-7">
         <div>
-          <h3 className="font-title text-4xl uppercase leading-[0.95] text-paper lg:text-5xl xl:text-6xl">{title}</h3>
+          <h3 className="font-display text-4xl font-extrabold leading-[0.95] tracking-[-0.04em] text-paper lg:text-5xl xl:text-6xl">{title}</h3>
           <p className="mt-3 max-w-sm text-sm leading-relaxed text-paper/85 md:text-base">{tagline}</p>
         </div>
 

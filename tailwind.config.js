@@ -4,7 +4,9 @@ export default {
   theme: {
     extend: {
       fontFamily: {
+        // Russo One is reserved for the hero wordmark; headlines use heavy Manrope (keynote style).
         title: ["Russo One", "system-ui", "sans-serif"],
+        display: ["Manrope Variable", "system-ui", "sans-serif"],
         general: ["Manrope Variable", "system-ui", "sans-serif"],
       },
       colors: {

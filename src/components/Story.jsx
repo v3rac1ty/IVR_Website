@@ -6,6 +6,7 @@ import clsx from "clsx";
 
 import AnimatedTitle from "./AnimatedTitle";
 import SectionHeader from "./SectionHeader";
+import StatRow from "./StatRow";
 import { gsap, prefersReducedMotion } from "../lib/motion";
 
 // ==========================================
@@ -21,12 +22,14 @@ const EVENT_SEASONS = [
         level: "V5RC", // Competition level
         name: "Cornfield Clash Jr",
         date: "2026-11-07T08:30:00-06:00", // Sat 7-Nov-2026
+        capacity: 32, // team spots, per events.vex.com
         url: "https://events.vex.com/robot-competitions/vex-robotics-competition/RE-V5RC-26-4351.html#general-info",
       },
       {
         level: "VEX U",
         name: "Cornfield Clash",
         date: "2026-11-08T08:30:00-06:00", // Sun 8-Nov-2026
+        capacity: 24,
         url: "https://events.vex.com/robot-competitions/college-competition/VE-U-26-65716.html#general-info",
       },
     ],
@@ -38,18 +41,28 @@ const EVENT_SEASONS = [
         level: "V5RC",
         name: "Cornfield Clash Jr",
         date: "2027-01-30T08:30:00-06:00", // Sat 30-Jan-2027
+        capacity: 32,
         url: "https://events.vex.com/robot-competitions/vex-robotics-competition/RE-V5RC-26-4756.html#general-info",
       },
       {
         level: "VEX U",
         name: "Cornfield Clash",
         date: "2027-01-31T08:30:00-06:00", // Sun 31-Jan-2027
+        capacity: 24,
         url: "https://events.vex.com/robot-competitions/college-competition/RE-VURC-26-4757.html#general-info",
       },
     ],
   },
 ];
 // ==========================================
+
+// Season numbers for the stat row, derived from the config above.
+const ALL_EVENTS = EVENT_SEASONS.flatMap((s) => s.events);
+const SEASON_STATS = [
+  { value: ALL_EVENTS.length, label: "Events this season" },
+  { value: EVENT_SEASONS.length, label: "Competition weekends" },
+  { value: ALL_EVENTS.reduce((sum, e) => sum + (e.capacity || 0), 0), label: "Team spots across every event" },
+];
 
 const getTimeLeft = (targetDate) => {
   const difference = Math.max(0, new Date(targetDate) - new Date());
@@ -119,7 +132,7 @@ const DateChip = ({ date, muted }) => (
     <span className="text-[11px] font-bold uppercase tracking-wide text-accent">
       {formatDate(date, { month: "short" })}
     </span>
-    <span className="font-title text-3xl leading-none text-paper">{formatDate(date, { day: "numeric" })}</span>
+    <span className="font-display text-3xl font-extrabold leading-none tracking-[-0.04em] text-paper">{formatDate(date, { day: "numeric" })}</span>
     <span className="mt-1 text-[11px] font-semibold uppercase text-paper-muted">
       {formatDate(date, { weekday: "short" })}
     </span>
@@ -169,7 +182,7 @@ const NextUp = ({ event, active }) => {
           <p className="inline-flex rounded-full bg-accent/15 px-3 py-1 text-xs font-bold uppercase tracking-wide text-accent">
             {started ? "Happening now" : "Next up"}
           </p>
-          <h4 className="mt-4 font-title text-3xl uppercase leading-none text-paper md:text-5xl">{event.name}</h4>
+          <h4 className="text-keynote mt-4 font-display text-4xl font-extrabold leading-none tracking-[-0.04em] md:text-6xl">{event.name}</h4>
           <p className="mt-3 text-paper-muted">
             {event.season} · {formatDate(event.date, { weekday: "long", month: "long", day: "numeric", year: "numeric" })}
           </p>
@@ -350,7 +363,7 @@ const Story = () => {
         </div>
 
         <div className="reveal relative z-10 mx-auto mt-12 max-w-3xl text-center md:mt-16">
-          <h3 className="font-title text-3xl uppercase text-paper md:text-5xl">Cornfield Clash</h3>
+          <h3 className="text-keynote font-display text-4xl font-extrabold tracking-[-0.04em] md:text-6xl">Cornfield Clash</h3>
           <p className="mt-5 text-lg leading-relaxed text-paper-muted md:text-xl">
             Illinois&apos; premier VEX competition, hosted by Illini VEX Robotics
             at the Siebel Center for Design. Middle and high school teams compete
@@ -362,7 +375,11 @@ const Story = () => {
           </p>
         </div>
 
-        <div ref={scheduleRef} data-spotlight-group className="mt-20 md:mt-28" onMouseMove={handleSpotlight}>
+        <div className="mt-24 md:mt-36">
+          <StatRow stats={SEASON_STATS} />
+        </div>
+
+        <div ref={scheduleRef} data-spotlight-group className="mt-24 md:mt-36" onMouseMove={handleSpotlight}>
           <SectionHeader
             as="h3"
             size="md"

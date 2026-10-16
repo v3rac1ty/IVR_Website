@@ -69,7 +69,7 @@ const LogoTile = ({ name, logo, className, imgClassName }) => {
         <img
           src={logo}
           alt={name}
-          className={clsx("h-auto w-auto select-none object-contain", imgClassName)}
+          className={clsx("size-auto select-none object-contain", imgClassName)}
           loading="lazy"
           decoding="async"
           onError={() => setFailed(true)}
@@ -136,7 +136,7 @@ const SponsorTier = ({ id, title, description, items }) => {
           className={clsx(
             "text-paper",
             featured
-              ? "font-title text-4xl uppercase lg:text-5xl"
+              ? "font-display text-4xl font-extrabold tracking-[-0.04em] lg:text-5xl"
               : "font-general text-2xl font-extrabold tracking-tight md:text-3xl"
           )}
         >

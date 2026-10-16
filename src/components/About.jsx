@@ -2,6 +2,7 @@ import { useGSAP } from "@gsap/react";
 import { useRef } from "react";
 
 import AnimatedTitle from "./AnimatedTitle";
+import ScrollLitText from "./ScrollLitText";
 import { gsap, prefersReducedMotion } from "../lib/motion";
 
 const About = () => {
@@ -44,17 +45,6 @@ const About = () => {
           title="Build the future of <br /> robotics innovation"
           containerClass="mt-5 text-center"
         />
-
-        <div className="absolute bottom-[-80dvh] left-1/2 w-full max-w-md -translate-x-1/2 px-6 text-center text-lg md:max-w-xl">
-          <p className="font-semibold text-paper">
-            From design to competition, engineering excellence in every build.
-          </p>
-          <p className="mt-2 leading-relaxed text-paper-muted">
-            Illini VEX Robotics brings together engineers and builders at the
-            University of Illinois to push the limits of robotics and compete at
-            the highest level.
-          </p>
-        </div>
       </div>
 
       <div className="h-dvh w-full" id="clip">
@@ -69,6 +59,13 @@ const About = () => {
             decoding="async"
           />
         </div>
+      </div>
+
+      <div className="mx-auto max-w-5xl px-6 py-32 md:py-48">
+        <ScrollLitText
+          className="font-display text-3xl font-extrabold leading-[1.12] tracking-[-0.03em] text-paper sm:text-4xl md:text-6xl"
+          text="From first sketch to final match, Illini VEX Robotics unites mechanical design and software at the University of Illinois, pushing the limits of robotics to compete at the highest level."
+        />
       </div>
     </section>
   );

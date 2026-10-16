@@ -5,6 +5,7 @@ import NavBar from "./components/Navbar";
 import { VideoProvider } from "./contexts/VideoContext";
 
 const About = lazy(() => import("./components/About"));
+const History = lazy(() => import("./components/History"));
 const Features = lazy(() => import("./components/Features"));
 const TeamDetails = lazy(() => import("./components/TeamDetails"));
 const Story = lazy(() => import("./components/Story"));
@@ -25,6 +26,7 @@ function App() {
         {/* One boundary: sections mount together, so pinned ScrollTriggers measure the final layout */}
         <Suspense fallback={<div className="min-h-dvh" />}>
           <About />
+          <History />
           <Features />
           <TeamDetails />
           <Story />

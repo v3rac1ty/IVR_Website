@@ -135,7 +135,7 @@ const NavBar = () => {
                     href={`#${item.href}`}
                     tabIndex={menuOpen ? 0 : -1}
                     onClick={(e) => { scrollToSection(e, item.href); setMenuOpen(false); }}
-                    className="block rounded-lg p-3 font-title text-xl uppercase text-paper hover:bg-white/5"
+                    className="block rounded-lg p-3 font-display text-2xl font-extrabold tracking-[-0.04em] text-paper hover:bg-white/5"
                   >
                     {item.label}
                   </a>
@@ -147,7 +147,7 @@ const NavBar = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   tabIndex={menuOpen ? 0 : -1}
-                  className="flex items-center gap-1 rounded-lg p-3 font-title text-xl uppercase text-accent hover:bg-white/5"
+                  className="flex items-center gap-1 rounded-lg p-3 font-display text-2xl font-extrabold tracking-[-0.04em] text-accent hover:bg-white/5"
                 >
                   Merch <TiLocationArrow />
                 </a>

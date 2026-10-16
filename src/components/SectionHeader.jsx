@@ -1,16 +1,16 @@
 import clsx from "clsx";
 
-// Type scale: Russo One (display) for section openers, heavy Manrope for sub-sections.
+// Type scale: big heavy Manrope with a white-to-silver fill for openers, smaller Manrope for sub-sections.
 const SIZES = {
   // Section openers (Find your team, Partners & Sponsors)
-  lg: "mt-5 font-title uppercase text-4xl leading-[0.95] md:text-6xl",
+  lg: "mt-5 font-display font-extrabold tracking-[-0.04em] text-keynote text-4xl leading-[0.98] md:text-6xl lg:text-7xl",
   // Headings inside a card or a narrow column (Contact)
-  card: "mt-5 font-title uppercase text-4xl leading-[0.95] lg:text-5xl",
+  card: "mt-5 font-display font-extrabold tracking-[-0.04em] text-keynote text-4xl leading-[0.98] lg:text-5xl",
   // Sub-sections (schedule, University Partners, Sponsors)
   md: "mt-4 font-general font-extrabold tracking-tight text-2xl md:text-3xl",
 };
 
-// One header style for the whole site: orange accent bar, Russo One title, optional intro.
+// One header style for the whole site: orange accent bar, keynote-style title, optional intro.
 // `aside` sits on the right on wide screens (e.g. a venue note).
 const SectionHeader = ({ title, intro, aside, as: Tag = "h2", size = "lg", className }) => (
   <div className={clsx("reveal", className)}>
