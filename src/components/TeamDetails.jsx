@@ -38,6 +38,8 @@ const offsetOf = (i, active, n) => {
 const TeamDetails = () => {
   const [active, setActive] = useState(0);
   const [inView, setInView] = useState(false);
+  // A screen ahead of the carousel: start buffering the showing slide's video before it's visible.
+  const [near, setNear] = useState(false);
   const [reduceMotion] = useState(prefersReducedMotion);
   // entered: the one-time entrance has started; settled: it has finished (normal transitions from then on).
   const [entered, setEntered] = useState(reduceMotion);
@@ -69,7 +71,14 @@ const TeamDetails = () => {
     if (!el) return;
     const observer = new IntersectionObserver(([entry]) => setInView(entry.isIntersecting), { threshold: 0.3 });
     observer.observe(el);
-    return () => observer.disconnect();
+    const nearObserver = new IntersectionObserver(([entry]) => entry.isIntersecting && setNear(true), {
+      rootMargin: "100% 0px",
+    });
+    nearObserver.observe(el);
+    return () => {
+      observer.disconnect();
+      nearObserver.disconnect();
+    };
   }, []);
 
   // First time on screen: run the entrance once, then switch to the normal card transitions.
@@ -255,8 +264,8 @@ const TeamDetails = () => {
                     muted
                     loop
                     playsInline
-                    // Load only the slide that's showing; it fades in once its first frame is ready.
-                    preload={isActive && inView ? "auto" : "none"}
+                    // Load only the slide that's showing (from a screen away); it fades in once its first frame is ready.
+                    preload={isActive && (inView || near) ? "auto" : "none"}
                     onLoadedData={() => markLoaded(i)}
                     aria-hidden="true"
                     className={clsx(
