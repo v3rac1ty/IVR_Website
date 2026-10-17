@@ -64,7 +64,7 @@ const About = () => {
       <div className="mx-auto max-w-5xl px-6 py-32 md:py-48">
         <ScrollLitText
           className="font-display text-3xl font-extrabold leading-[1.12] tracking-[-0.03em] text-paper sm:text-4xl md:text-6xl"
-          text="From first sketch to final match, Illini VEX Robotics unites mechanical design and software at the University of Illinois, pushing the limits of robotics to compete at the highest level."
+          text="From first sketch to final match, Illini VEX Robotics unites mechanical and software design at the University of Illinois, pushing the limits of robotics to compete at the highest level."
         />
       </div>
     </section>

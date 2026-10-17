@@ -1,9 +1,12 @@
 import { useRef } from "react";
 import { TiLocationArrow } from "react-icons/ti";
+import { FaDiscord } from "react-icons/fa";
 import clsx from "clsx";
 
 import LazyVideo from "./LazyVideo";
 import SectionHeader from "./SectionHeader";
+import Button from "./Button";
+import { DISCORD_URL } from "../data/nav";
 import { TEAMS, scrollToTeam } from "../data/teams";
 import { prefersReducedMotion } from "../lib/motion";
 
@@ -90,18 +93,24 @@ const cardProps = (id) => ({ ...teamById[id], target: id });
 // Cards use the shared scroll reveal (src/lib/reveal.js).
 const Features = () => {
   return (
-    <section id="departments" className="bg-ink pb-12 pt-24 md:pb-16 md:pt-32">
+    <section id="departments" className="pb-12 pt-24 md:pb-16 md:pt-32">
       <div className="mx-auto max-w-7xl px-4 md:px-10">
         <SectionHeader
           title="Find your team"
           intro="Compete in VEX U, or build your own projects in mechanical and software R&D."
-          className="mb-12 md:mb-16"
         />
+        <div className="reveal mb-12 mt-8 md:mb-16">
+          <Button
+            title="Join our Discord"
+            href={DISCORD_URL}
+            leftIcon={<FaDiscord className="text-base" />}
+          />
+        </div>
 
         <BentoTilt className="relative mb-6 h-[28rem] w-full md:h-[65vh]">
           <TeamCard
-            title="Three teams"
-            tagline="Compete against other universities with VEX U, or take on open-ended projects in R&D Mechanical and R&D Software."
+            title="Four teams"
+            tagline="Compete with VEX U, take on R&D projects in mechanical and software, or grow the club through business and outreach."
             video="/videos/bet.mp4"
             poster="/img/posters/bet.webp"
             target="teams"

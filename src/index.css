@@ -102,33 +102,27 @@
 }
 
 /* Cornfield Clash flyer lighting */
-/* Colors rotate slowly inside a fixed glow (the shape stays put, only the hues move). */
-@property --cc-angle {
-  syntax: "<angle>";
-  inherits: false;
-  initial-value: 0deg;
-}
-
-.cc-ambient {
-  background: conic-gradient(from var(--cc-angle), #ff5f05, #13294b, #3a5f9e, #13294b, #ff5f05);
+/* Colors rotate slowly inside a fixed glow (the shape stays put, only the hues move).
+   A blurred conic circle spins with a transform, so it is painted once and the GPU turns it. */
+.cc-ambient::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 100%;
+  aspect-ratio: 1;
   border-radius: 50%;
+  background: conic-gradient(#ff5f05, #13294b, #3a5f9e, #13294b, #ff5f05);
   filter: blur(70px);
   opacity: 0.65;
-  animation: cc-colors 20s linear infinite;
+  transform: translate(-50%, -50%);
+  animation: cc-spin 20s linear infinite;
+  will-change: transform;
 }
 
-@keyframes cc-colors {
+@keyframes cc-spin {
   to {
-    --cc-angle: 360deg;
-  }
-}
-
-@keyframes team-progress {
-  from {
-    transform: scaleX(0);
-  }
-  to {
-    transform: scaleX(1);
+    transform: translate(-50%, -50%) rotate(360deg);
   }
 }
 
@@ -264,5 +258,76 @@
   .reveal {
     opacity: 1;
     transform: none;
+  }
+}
+
+/* Lenis smooth scrolling */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: clip;
+}
+
+/* Platinum sponsor: a light that travels around the metal border, and a shine across the title. */
+.platinum-beam {
+  background: conic-gradient(
+    transparent 0deg 290deg,
+    rgb(255 255 255 / 0.15) 315deg,
+    #ffffff 345deg,
+    #dfe6ef 352deg,
+    transparent 360deg
+  );
+  transform: translate(-50%, -50%);
+  animation: platinum-beam 7s linear infinite;
+  will-change: transform;
+}
+
+@keyframes platinum-beam {
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+.platinum-title {
+  background-size: 300% 100%, 100% 100%;
+  background-repeat: no-repeat;
+  background-position: 90% 0, 0 0;
+}
+
+/* Shine sweeps once as the card appears, and again on hover. */
+.is-revealed .platinum-title {
+  animation: platinum-shine 1.8s 0.5s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+.group:hover .platinum-title {
+  animation: platinum-shine-hover 1.4s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+@keyframes platinum-shine {
+  from {
+    background-position: 90% 0, 0 0;
+  }
+  to {
+    background-position: 10% 0, 0 0;
+  }
+}
+
+@keyframes platinum-shine-hover {
+  from {
+    background-position: 90% 0, 0 0;
+  }
+  to {
+    background-position: 10% 0, 0 0;
   }
 }

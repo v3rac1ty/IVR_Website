@@ -5,8 +5,8 @@
 export const HISTORY_STATS = [
   { value: 5, label: "Trips to the World Championship" },
   { value: 3, suffix: "rd", label: "In the Innovate Division at Worlds" },
-  // 3 Robot Skills Champion, 2 Design, 1 Amaze, 1 Innovate (RobotEvents, ICTRL + ILLIN1)
-  { value: 7, label: "Awards won since 2021" },
+  // 3 Robot Skills Champion, 2 Design, 1 Amaze, 1 Innovate, 1 Onshape Challenge (RobotEvents + team records)
+  { value: 8, label: "Awards won since 2021" },
 ];
 
 // Season results from RobotEvents (team ICTRL for 2021-22, ILLIN1 after). Event codes carry the season start year.
@@ -15,13 +15,13 @@ export const SEASONS = [
     years: "2021-22",
     game: "Tipping Point",
     title: "First trip to Worlds",
-    text: "Competing as iCTRL: Robot Skills Champion at Nebraska's remote skills event, then Tournament Finalists and the Design Award at West Virginia to qualify for our first World Championship, where we reached the quarterfinals.",
+    text: "Competing as iCTRL: Robot Skills Champion at Nebraska's remote skills event, then Tournament Finalists and the Design Award at West Virginia to qualify for our first World Championship, where we reached the quarterfinals and placed 5th in World Skills.",
   },
   {
     years: "2022-23",
     game: "Spin Up",
     title: "Amaze Award at Worlds",
-    text: "Our first season as Illini VEX Robotics (ILLIN1): Robot Skills Champion and the Design Award at our own Cornfield Clash, then the Amaze Award at the 2023 World Championship.",
+    text: "Our first season as Illini VEX Robotics (ILLIN1): Robot Skills Champion and the Design Award at our own Cornfield Clash, the Onshape Challenge win, then the Amaze Award, 2nd in the Skills Challenge, and 5th in World Skills at the 2023 World Championship.",
     highlight: true,
   },
   {

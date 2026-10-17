@@ -23,6 +23,7 @@ const EVENT_SEASONS = [
         name: "Cornfield Clash Jr",
         date: "2026-11-07T08:30:00-06:00", // Sat 7-Nov-2026
         capacity: 32, // team spots, per events.vex.com
+        worldsSpots: 3, // Worlds qualifying spots (minimum for CC Jr)
         url: "https://events.vex.com/robot-competitions/vex-robotics-competition/RE-V5RC-26-4351.html#general-info",
       },
       {
@@ -30,6 +31,7 @@ const EVENT_SEASONS = [
         name: "Cornfield Clash",
         date: "2026-11-08T08:30:00-06:00", // Sun 8-Nov-2026
         capacity: 24,
+        worldsSpots: 1,
         url: "https://events.vex.com/robot-competitions/college-competition/VE-U-26-65716.html#general-info",
       },
     ],
@@ -42,6 +44,7 @@ const EVENT_SEASONS = [
         name: "Cornfield Clash Jr",
         date: "2027-01-30T08:30:00-06:00", // Sat 30-Jan-2027
         capacity: 32,
+        worldsSpots: 3,
         url: "https://events.vex.com/robot-competitions/vex-robotics-competition/RE-V5RC-26-4756.html#general-info",
       },
       {
@@ -49,6 +52,7 @@ const EVENT_SEASONS = [
         name: "Cornfield Clash",
         date: "2027-01-31T08:30:00-06:00", // Sun 31-Jan-2027
         capacity: 24,
+        worldsSpots: 1,
         url: "https://events.vex.com/robot-competitions/college-competition/RE-VURC-26-4757.html#general-info",
       },
     ],
@@ -60,7 +64,8 @@ const EVENT_SEASONS = [
 const ALL_EVENTS = EVENT_SEASONS.flatMap((s) => s.events);
 const SEASON_STATS = [
   { value: ALL_EVENTS.length, label: "Events this season" },
-  { value: EVENT_SEASONS.length, label: "Competition weekends" },
+  // "+" because CC Jr guarantees at least 3 spots per event
+  { value: ALL_EVENTS.reduce((sum, e) => sum + (e.worldsSpots || 0), 0), suffix: "+", label: "World Championship qualifying spots" },
   { value: ALL_EVENTS.reduce((sum, e) => sum + (e.capacity || 0), 0), label: "Team spots across every event" },
 ];
 
@@ -332,7 +337,7 @@ const Story = () => {
   };
 
   return (
-    <section id="story" className="w-full bg-ink py-24 text-paper md:py-32">
+    <section id="story" className="w-full py-24 text-paper md:py-32">
       <div className="mx-auto max-w-7xl px-4 md:px-10">
         <p className="text-center text-xs font-bold uppercase tracking-[0.2em] text-accent">
           Illinois&apos; premier robotics competition

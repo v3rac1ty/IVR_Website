@@ -1,3 +1,5 @@
+import { smoothScrollTo } from "../lib/motion";
+
 // Section links shared by the navbar and the footer.
 export const NAV_ITEMS = [
   { label: "About", href: "about" },
@@ -8,8 +10,9 @@ export const NAV_ITEMS = [
 ];
 
 export const MERCH_URL = "https://guardianproline.com/collections/illini-robotics";
+export const DISCORD_URL = "https://discord.gg/n24Fd7pk4P"; // from linktr.ee/illinivexrobotics
 
 export const scrollToSection = (e, id) => {
   e.preventDefault();
-  document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+  smoothScrollTo(document.getElementById(id));
 };

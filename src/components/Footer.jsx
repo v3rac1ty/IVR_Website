@@ -7,10 +7,10 @@ import {
 } from "react-icons/fa";
 import { TiLocationArrow } from "react-icons/ti";
 
-import { NAV_ITEMS, MERCH_URL, scrollToSection } from "../data/nav";
+import { NAV_ITEMS, MERCH_URL, DISCORD_URL, scrollToSection } from "../data/nav";
 
 const socialLinks = [
-  { label: "Discord", href: "https://discord.com", icon: <FaDiscord /> },
+  { label: "Discord", href: DISCORD_URL, icon: <FaDiscord /> },
   { label: "YouTube", href: "https://www.youtube.com/@illinivexrobotics", icon: <FaYoutube /> },
   { label: "Instagram", href: "https://www.instagram.com/illinivexrobotics/", icon: <FaInstagram /> },
   { label: "LinkedIn", href: "https://www.linkedin.com/company/illini-vex-robotics/", icon: <FaLinkedin /> },
@@ -24,7 +24,7 @@ const Footer = () => {
         <div>
           <img src="/img/opt/logo.webp" alt="Illini VEX Robotics" width={128} height={50} className="h-auto w-32" loading="lazy" decoding="async" />
           <p className="mt-4 max-w-xs text-sm leading-relaxed text-paper-muted">
-            The University of Illinois VEX U team and host of Cornfield Clash. Design. Build. Win.
+            The University of Illinois VEX U team and host of Cornfield Clash.
           </p>
         </div>
 

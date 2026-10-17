@@ -15,14 +15,25 @@ const History = () => {
   const fillRef = useRef(null);
   const reduceMotion = prefersReducedMotion();
 
-  // Light each marker once the orange line's tip reaches it.
+  // Each marker's center as a fraction of the track, measured on refresh (not per scroll frame,
+  // where interleaved reads and writes would force a layout for every marker).
+  // Offsets are layout positions, so the rows' reveal transforms don't skew them.
+  const markerStops = useRef([]);
+
+  const measureMarkers = () => {
+    const track = trackRef.current;
+    if (!track?.offsetHeight) return;
+    markerStops.current = [...(listRef.current?.querySelectorAll("[data-marker]") ?? [])].map((marker) => {
+      const center = marker.parentElement.offsetTop + marker.offsetTop + marker.offsetHeight / 2;
+      return { marker, at: (center - track.offsetTop - 1) / track.offsetHeight };
+    });
+  };
+
+  // Light each marker once the orange line's tip reaches it; only changed markers are touched.
   const lightMarkers = (progress) => {
-    const track = trackRef.current?.getBoundingClientRect();
-    if (!track) return;
-    const tip = track.top + progress * track.height;
-    listRef.current?.querySelectorAll("[data-marker]").forEach((marker) => {
-      const box = marker.getBoundingClientRect();
-      marker.dataset.lit = String(box.top + box.height / 2 <= tip + 1);
+    markerStops.current.forEach(({ marker, at }) => {
+      const lit = String(at <= progress);
+      if (marker.dataset.lit !== lit) marker.dataset.lit = lit;
     });
   };
 
@@ -42,7 +53,10 @@ const History = () => {
             scrub: true,
             refreshPriority: -1, // measure after the pinned About section above
             onUpdate: (self) => lightMarkers(self.progress),
-            onRefresh: (self) => lightMarkers(self.progress),
+            onRefresh: (self) => {
+              measureMarkers();
+              lightMarkers(self.progress);
+            },
           },
         }
       );
@@ -51,7 +65,7 @@ const History = () => {
   );
 
   return (
-    <section id="history" className="w-full bg-ink py-24 md:py-32">
+    <section id="history" className="w-full py-24 md:py-32">
       <div className="mx-auto max-w-7xl px-4 md:px-10">
         <SectionHeader
           title="Five seasons. Five World Championships."

@@ -4,7 +4,7 @@ import { TiLocationArrow } from "react-icons/ti";
 import { HiOutlineMenuAlt4, HiX } from "react-icons/hi";
 
 import { useVideo } from "../contexts/VideoContext";
-import { ScrollTrigger } from "../lib/motion";
+import { ScrollTrigger, smoothScrollTo } from "../lib/motion";
 import { NAV_ITEMS, MERCH_URL, scrollToSection } from "../data/nav";
 
 const NavBar = () => {
@@ -46,7 +46,7 @@ const NavBar = () => {
       <header>
         <nav className="flex h-16 items-center justify-between px-4" aria-label="Main">
           <div className="flex items-center gap-6">
-            <a href="#top" onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: "smooth" }); }} aria-label="Illini VEX Robotics home">
+            <a href="#top" onClick={(e) => { e.preventDefault(); smoothScrollTo(0); }} aria-label="Illini VEX Robotics home">
               <img
                 src="/img/opt/logo.webp"
                 alt=""
