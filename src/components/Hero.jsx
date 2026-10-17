@@ -10,31 +10,50 @@ import { gsap, prefersReducedMotion } from "../lib/motion";
 // ============================================
 // HERO VIDEO CONFIGURATION
 // ============================================
-// src:    the looping background video (720p H.264, faststart)
-// poster: still frame shown instantly and used for the preview tile
-// link:   opened by the "Watch Video" button
+// src:      the looping background video (H.264, faststart)
+// portrait: centre 3:5 crop of src at full resolution, for phones held upright (they only show the centre)
+// small:    optional lower-resolution copy for landscape screens no more than 1280 device pixels wide
+// poster:   still frame shown instantly and used for the preview tile
+// link:     opened by the "Watch Video" button
 const HERO_VIDEOS = [
   {
     src: "/videos/hero-1.mp4",
+    portrait: "/videos/hero-1-portrait.mp4",
+    small: "/videos/hero-1-720.mp4",
     poster: "/img/posters/hero-1.webp",
     link: "https://www.youtube.com/@illinivexrobotics",
   },
   {
     src: "/videos/hero-2.mp4",
+    portrait: "/videos/hero-2-portrait.mp4",
     poster: "/img/posters/hero-2.webp",
     link: "https://youtu.be/gK4IB5Sx-sM",
   },
   {
     src: "/videos/hero-3.mp4",
+    portrait: "/videos/hero-3-portrait.mp4",
     poster: "/img/posters/hero-3.webp",
     link: "https://youtu.be/Ul3QTyyPic4",
   },
   {
     src: "/videos/hero-4.mp4",
+    portrait: "/videos/hero-4-portrait.mp4",
     poster: "/img/posters/hero-4.webp",
     link: "https://youtu.be/Ctw2Fyd9iS0",
   },
 ];
+
+// Which copy of the hero videos this screen needs, chosen once on load. Each is the full picture the
+// screen can show, so nothing visibly changes; smaller screens just download and decode less.
+const PORTRAIT_MAX_ASPECT = 0.6; // the portrait crops are 3:5, which covers phones held upright
+const SMALL_MAX_PIXELS = 1280;
+const pickVariant = () => {
+  if (typeof window === "undefined") return "src";
+  const { innerWidth: w, innerHeight: h, devicePixelRatio: dpr = 1 } = window;
+  if (w / h <= PORTRAIT_MAX_ASPECT) return "portrait";
+  if (w * dpr <= SMALL_MAX_PIXELS) return "small";
+  return "src";
+};
 // ============================================
 
 const PREVIEW_SIZE = 256; // px, matches size-64 on the preview tile
@@ -62,7 +81,9 @@ const Hero = () => {
   const inViewRef = useRef(true);
   const { soundActive } = useVideo();
 
+  const [variant] = useState(pickVariant);
   const current = HERO_VIDEOS[index];
+  const currentSrc = current[variant] ?? current.src;
   const nextIndex = (index + 1) % HERO_VIDEOS.length;
 
   // Audio fades instead of cutting: volume eases toward a target with requestAnimationFrame.
@@ -272,7 +293,7 @@ const Hero = () => {
         <div ref={mediaRef} className="absolute inset-0">
         <video
           ref={videoRef}
-          src={current.src}
+          src={currentSrc}
           poster={current.poster}
           preload="auto"
           playsInline
