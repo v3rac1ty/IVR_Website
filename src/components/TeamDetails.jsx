@@ -26,7 +26,7 @@ const ENTRY_POSE = {
 };
 const ENTRY_MS = 1400; // entrance length; side cards follow the center one by SIDE_DELAY_MS
 const SIDE_DELAY_MS = 260;
-const FADE_MS = 1200; // a slide's video fades in slowly on its held first frame, then plays
+const FADE_MS = 800; // a slide's video fades in on its held first frame, then plays
 
 // Signed distance from the active card, wrapping around the ends.
 const offsetOf = (i, active, n) => {
@@ -210,7 +210,7 @@ const TeamDetails = () => {
                     onLoadedData={() => markLoaded(i)}
                     aria-hidden="true"
                     className={clsx(
-                      "absolute inset-0 size-full object-cover transition-opacity duration-[1200ms] ease-in-out",
+                      "absolute inset-0 size-full object-cover transition-opacity duration-[800ms] ease-in-out",
                       isActive && loaded.has(i) ? "opacity-100" : "opacity-0"
                     )}
                   />

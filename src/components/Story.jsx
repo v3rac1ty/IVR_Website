@@ -364,10 +364,10 @@ const Story = () => {
           >
             <div ref={frameRef} className="relative will-change-transform">
               <img
-                src="/img/opt/vex-cc-jr.webp"
-                alt="Cornfield Clash VEX V5 Robotics Competition, presented by Prismier and the Siebel Center for Design"
-                width={1400}
-                height={933}
+                src="/img/opt/vex-cc.webp"
+                alt="Cornfield Clash VEX V5 Robotics Competition, presented by SCD and Prismier"
+                width={1476}
+                height={1066}
                 className="h-auto w-full"
                 loading="lazy"
                 decoding="async"
