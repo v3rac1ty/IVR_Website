@@ -123,7 +123,7 @@ const NavBar = () => {
         <div
           id="mobile-menu"
           className={clsx(
-            "grid overflow-hidden rounded-card bg-ink/95 backdrop-blur-md transition-all duration-300 md:hidden",
+            "grid overflow-hidden rounded-card bg-ink/95 transition-all duration-300 md:hidden",
             menuOpen ? "grid-rows-[1fr] border border-white/10 opacity-100" : "grid-rows-[0fr] opacity-0"
           )}
         >

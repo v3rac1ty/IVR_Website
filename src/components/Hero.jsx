@@ -238,13 +238,14 @@ const Hero = () => {
         id="video-frame"
         className="relative z-10 h-dvh w-full overflow-hidden bg-ink"
       >
-        <div className="absolute-center z-50 size-64">
+        {/* Hover-reveal preview in the middle; touch screens can't hover, so they get the pill below the copy instead */}
+        <div className="absolute-center z-50 size-64 [@media(hover:none)]:hidden">
           <VideoPreview>
             <button
               type="button"
               onClick={handlePreviewClick}
               aria-label="Play next video"
-              className="block size-64 origin-center scale-50 cursor-pointer overflow-hidden rounded-lg opacity-0 transition-all duration-500 ease-out hover:scale-100 hover:opacity-100 focus-visible:scale-100 focus-visible:opacity-100 [@media(hover:none)]:scale-[0.45] [@media(hover:none)]:opacity-90"
+              className="block size-64 origin-center scale-50 cursor-pointer overflow-hidden rounded-lg opacity-0 transition-all duration-500 ease-out hover:scale-100 hover:opacity-100 focus-visible:scale-100 focus-visible:opacity-100"
             >
               <img
                 src={HERO_VIDEOS[nextIndex].poster}
@@ -312,6 +313,24 @@ const Hero = () => {
               href={current.link}
               leftIcon={<TiLocationArrow />}
             />
+
+            {/* Touch screens: next-video control that stays out of the way of the footage */}
+            <button
+              type="button"
+              onClick={handlePreviewClick}
+              aria-label="Play next video"
+              className="hero-fade mt-4 hidden w-fit items-center gap-3 rounded-full border border-white/20 bg-ink/60 py-1.5 pl-1.5 pr-4 text-xs font-bold uppercase tracking-wide text-paper active:opacity-80 [@media(hover:none)]:flex"
+            >
+              <img
+                src={HERO_VIDEOS[nextIndex].poster}
+                alt=""
+                width={36}
+                height={36}
+                className="size-9 rounded-full object-cover"
+                decoding="async"
+              />
+              Next video
+            </button>
           </div>
         </div>
       </div>

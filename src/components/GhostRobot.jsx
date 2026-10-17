@@ -6,15 +6,17 @@ import { gsap, ScrollTrigger, prefersReducedMotion } from "../lib/motion";
 // scrolls away and turns from the front round to the back over the rest of the page, eased so the turn
 // glides. It keeps turning while the About photo expands over it; the photo covers it fully only as the
 // expansion ends, and it's turning again as soon as the photo scrolls off. The lines drift and grow a
-// little and pick up the accent from below. One all-keyframe video (traced from the render) keeps
-// memory to a single decoded frame; it loads after the page settles.
-const SRC = "/videos/robot-crisp.mp4";
-const FRAME = 1 / 120; // 361 frames (960px tall) traced from a motion-interpolated render, lightly smoothed, contrast-boosted
+// little. One all-keyframe video (traced from the render) keeps memory to a single decoded frame; it
+// loads after the page settles. The look (accent tint from the base, ~34% strength, page colour behind)
+// is baked into the frames, so the layer is a plain opaque video: no blending and nothing to repaint
+// per frame, only a seek and a GPU transform.
+const SRC = "/videos/robot-lines.mp4";
+const FRAME = 1 / 120; // 361 frames, 958x960
 const STILL = 0.45; // frame shown with reduced motion (a three-quarter view)
 const MASK = "linear-gradient(to top, #000 calc(var(--draw) * 130% - 30%), transparent calc(var(--draw) * 130%))";
-// Drifts left and up and grows a little over the page, following --turn (0 at the start, 1 at the bottom).
-const DRIFT =
-  "translate3d(calc((0.5 - var(--turn)) * 6vw), calc((0.5 - var(--turn)) * 10vh), 0) scale(calc(0.92 + var(--turn) * 0.12))";
+// Drifts left and up and grows a little over the page (turn: 0 at the start, 1 at the bottom).
+const drift = (turn) =>
+  `translate3d(${((0.5 - turn) * 6).toFixed(3)}vw, ${((0.5 - turn) * 10).toFixed(3)}vh, 0) scale(${(0.92 + turn * 0.12).toFixed(4)})`;
 
 const GhostRobot = () => {
   const layerRef = useRef(null);
@@ -59,7 +61,7 @@ const GhostRobot = () => {
       if (Math.abs(delta) < 0.00005 && synced) return;
       if (Math.abs(delta) >= 0.00005) {
         current += delta * (1 - Math.pow(0.85, gsap.ticker.deltaRatio()));
-        layer.style.setProperty("--turn", current.toFixed(4));
+        art.style.transform = drift(current);
       }
       if (video.readyState < 1 || video.seeking) return;
       const t = (1 - current) * (video.duration - FRAME);
@@ -108,15 +110,10 @@ const GhostRobot = () => {
     <div
       ref={layerRef}
       aria-hidden="true"
-      className="pointer-events-none fixed inset-y-0 right-[3vw] -z-10 hidden w-[44vw] max-w-[740px] items-center mix-blend-screen md:flex"
-      style={{ "--draw": 0, "--turn": 0 }}
+      className="pointer-events-none fixed inset-y-0 right-[3vw] -z-10 hidden w-[44vw] max-w-[740px] items-center md:flex"
+      style={{ "--draw": 0 }}
     >
-      {/* Black base for the tint; the layer's screen blend drops it, leaving only the lines over the page */}
-      <div
-        ref={artRef}
-        className="relative isolate aspect-[958/960] w-full bg-black opacity-[0.34]"
-        style={{ transform: DRIFT }}
-      >
+      <div ref={artRef} className="relative aspect-[958/960] w-full will-change-transform" style={{ transform: drift(0) }}>
         <video
           ref={videoRef}
           muted
@@ -125,11 +122,6 @@ const GhostRobot = () => {
           disablePictureInPicture
           tabIndex={-1}
           className="absolute inset-0 size-full"
-        />
-        {/* Tint: white lines warm to the accent from the base, rising as the robot turns */}
-        <div
-          className="absolute inset-0 bg-[linear-gradient(to_top,#ff5f05_0%,#ffb27a_22%,#f5f5f0_48%)] bg-[length:100%_200%] mix-blend-multiply"
-          style={{ backgroundPosition: "0 calc(100% - var(--turn) * 60%)" }}
         />
       </div>
     </div>

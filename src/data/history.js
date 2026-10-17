@@ -40,8 +40,8 @@ export const SEASONS = [
   {
     years: "2025-26",
     game: "Push Back",
-    title: "Aurum and Argentum at Worlds",
-    text: "Our robots Aurum and Argentum carried us to the 2026 World Championship, our fifth straight trip.",
+    title: "Salt and Pepper at Worlds",
+    text: "Our robots Salt and Pepper carried us to the 2026 World Championship, our fifth straight trip.",
   },
   {
     years: "2026-27",

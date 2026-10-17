@@ -47,6 +47,7 @@ const TeamDetails = () => {
   const sectionRef = useRef(null);
   const swipeStart = useRef(null);
   const videoRefs = useRef([]);
+  const reflectionRefs = useRef([]);
   const prevOffsets = useRef(TEAMS.map((_, i) => offsetOf(i, 0, TEAMS.length)));
 
   const goTo = useCallback((index) => {
@@ -100,6 +101,36 @@ const TeamDetails = () => {
   }, [active, inView, reduceMotion, loaded, settled]);
 
   const markLoaded = (i) => setLoaded((s) => (s.has(i) ? s : new Set(s).add(i)));
+
+  // The active slide's reflection mirrors its video: a small canvas redrawn once per new video frame
+  // (requestVideoFrameCallback), cropped like object-cover. Other slides reflect their still image.
+  useEffect(() => {
+    const video = videoRefs.current[active];
+    const canvas = reflectionRefs.current[active];
+    if (!video || !canvas || !loaded.has(active)) return;
+    const ctx = canvas.getContext("2d");
+    let handle;
+    const draw = () => {
+      const vw = video.videoWidth, vh = video.videoHeight;
+      if (!vw || !vh) return;
+      const target = canvas.width / canvas.height;
+      let sw = vw, sh = vh;
+      if (vw / vh > target) sw = vh * target;
+      else sh = vw / target;
+      ctx.drawImage(video, (vw - sw) / 2, (vh - sh) / 2, sw, sh, 0, 0, canvas.width, canvas.height);
+    };
+    const onFrame = () => {
+      draw();
+      handle = video.requestVideoFrameCallback(onFrame);
+    };
+    draw();
+    if ("requestVideoFrameCallback" in video) handle = video.requestVideoFrameCallback(onFrame);
+    video.addEventListener("seeked", draw);
+    return () => {
+      if (handle !== undefined) video.cancelVideoFrameCallback(handle);
+      video.removeEventListener("seeked", draw);
+    };
+  }, [active, loaded]);
 
   // Remember each card's position so a card wrapping from one side to the other jumps instead of sweeping across.
   const offsets = TEAMS.map((_, i) => offsetOf(i, active, TEAMS.length));
@@ -173,8 +204,7 @@ const TeamDetails = () => {
                 aria-label={isActive ? `${t.title} (showing)` : `Show ${t.title}`}
                 aria-hidden={isActive ? true : undefined}
                 className={clsx(
-                  // Floor reflection like Cover Flow (Chromium and Safari; other browsers just skip it).
-                  "absolute left-1/2 top-1/2 aspect-[16/11] w-[66%] overflow-hidden rounded-[1.75rem] border border-white/10 bg-ink-800 shadow-[0_40px_80px_-30px_rgb(0_0_0/0.8)] [-webkit-box-reflect:below_12px_linear-gradient(transparent_72%,rgb(0_0_0/0.2))] [transform-style:preserve-3d] sm:w-[56%] lg:w-[50%]",
+                  "absolute left-1/2 top-1/2 aspect-[16/11] w-[66%] [transform-style:preserve-3d] sm:w-[56%] lg:w-[50%]",
                   isActive ? "cursor-default" : "cursor-pointer",
                   jumping[i] || reduceMotion
                     ? "transition-none"
@@ -188,6 +218,26 @@ const TeamDetails = () => {
                     : pose
                 }
               >
+                {/* Floor reflection like Cover Flow. It's part of the card, so it moves with every animation. */}
+                <span
+                  aria-hidden="true"
+                  className="pointer-events-none absolute inset-x-0 top-full mt-3 block h-full -scale-y-100 overflow-hidden rounded-[1.75rem] opacity-20 [mask-image:linear-gradient(to_top,#000,transparent_30%)]"
+                >
+                  <img src={t.image} alt="" className="absolute inset-0 size-full object-cover" loading="lazy" decoding="async" />
+                  {t.slideVideo && (
+                    <canvas
+                      ref={(el) => (reflectionRefs.current[i] = el)}
+                      width={320}
+                      height={220}
+                      className={clsx(
+                        "absolute inset-0 size-full transition-opacity duration-[800ms] ease-in-out",
+                        isActive && loaded.has(i) ? "opacity-100" : "opacity-0"
+                      )}
+                    />
+                  )}
+                </span>
+
+                <span className="absolute inset-0 block overflow-hidden rounded-[1.75rem] border border-white/10 bg-ink-800 shadow-[0_40px_80px_-30px_rgb(0_0_0/0.8)]">
                 <img
                   src={t.image}
                   alt=""
@@ -223,6 +273,7 @@ const TeamDetails = () => {
                   )}
                 >
                   {t.title}
+                </span>
                 </span>
               </button>
             );

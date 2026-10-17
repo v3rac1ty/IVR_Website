@@ -27,7 +27,8 @@
   }
 
   .floating-nav {
-    @apply rounded-card border border-white/10 bg-ink/85 backdrop-blur-md;
+    /* Solid enough to read over anything, without a backdrop blur re-rendering on every scroll frame */
+    @apply rounded-card border border-white/10 bg-ink/95;
   }
 
   .absolute-center {

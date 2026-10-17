@@ -22,29 +22,27 @@ const SPONSOR_TIERS = [
   {
     id: "platinum",
     title: "Platinum",
-    description: "Lead Partner",
-    items: [{ name: "Prismier", logo: "/img/sponsors/prismier.webp" }],
+    items: [
+      { name: "Prismier", logo: "/img/sponsors/prismier.webp" },
+      { name: "Molex", logo: "/img/sponsors/molex.webp" },
+    ],
   },
   {
     id: "gold",
     title: "Gold",
-    description: "Gold Sponsors",
     items: [],
   },
   {
     id: "silver",
     title: "Silver",
-    description: "One-time major sponsors",
     items: [
       { name: "Eaton", logo: "/img/sponsors/eaton.webp" },
-      { name: "Molex", logo: "/img/sponsors/molex.webp" },
       { name: "Boeing", logo: "/img/sponsors/boeing.webp" },
     ],
   },
   {
     id: "bronze",
     title: "Bronze",
-    description: "One-time sponsors",
     items: [
       { name: "MAGNA / Nascote Industries Inc.", logo: "/img/sponsors/magna.webp" },
       { name: "BP", logo: "/img/sponsors/bp.webp" },
@@ -105,8 +103,8 @@ const TIER_STYLE = {
     frame: "rounded-[calc(1rem-1.5px)] bg-ink-800 px-6 py-12 md:px-12 md:py-16",
     title: "font-display text-5xl font-extrabold tracking-[-0.04em] lg:text-7xl",
     layout: "md:grid-cols-[20rem_1fr]",
-    cols: "grid-cols-1",
-    tile: "h-48 max-w-xl md:h-56",
+    cols: "grid-cols-1 sm:grid-cols-2",
+    tile: "h-48 md:h-56",
     img: "max-h-28 max-w-[min(100%,400px)] md:max-h-32",
   },
   gold: {
@@ -171,7 +169,7 @@ const PlatinumFrame = ({ metal, children }) => (
   </div>
 );
 
-const SponsorTier = ({ id, title, description, items }) => {
+const SponsorTier = ({ id, title, items }) => {
   const style = TIER_STYLE[id] ?? TIER_STYLE.bronze;
   const featured = id === "platinum";
 
@@ -219,7 +217,6 @@ const SponsorTier = ({ id, title, description, items }) => {
         >
           {title}
         </h3>
-        <p className={clsx("mt-2", featured ? "font-semibold text-accent" : "text-paper-muted")}>{description}</p>
       </div>
 
       <div className={clsx("relative grid gap-4", style.cols)}>
