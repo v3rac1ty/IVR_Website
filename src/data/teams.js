@@ -47,10 +47,10 @@ export const TEAMS = [
     id: "rd-mechanical",
     title: "R&D Mechanical",
     tagline: "Hands-on robotics projects beyond competition, from tangram-solving robots to a robotic arm.",
-    video: "/videos/team-mech-fab.mp4",
-    poster: "/img/posters/team-mech-fab.webp",
+    video: "/videos/rd-mechanical-sdr.mp4",
+    poster: "/img/posters/rd-mechanical-sdr.webp",
     image: "/img/teams/rd-mechanical-tangram.webp",
-    slideVideo: "/videos/team-mech-fab.mp4",
+    slideVideo: "/videos/rd-mechanical-sdr.mp4",
     imageAlt: "The Tangram robot: a triangular omni-wheel base with a Prismier plate",
     intro: [
       "Mechanical R&D works on alternative robotics projects in 4-5 person subteams, doing mostly mechanical and electrical design. We work alongside Professor Hsiao-Wecksler and the Human Dynamics and Controls Lab, and present at Engineering Open House every April. Any level of experience is welcome.",

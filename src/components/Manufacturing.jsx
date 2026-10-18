@@ -18,8 +18,8 @@ const CUTTING = [
     specs: [
       ["Machine", "OMAX 2652"],
     ],
-    video: "/videos/mfg-waterjet.mp4",
-    poster: "/img/manufacturing/waterjet.webp",
+    video: "/videos/mfg-waterjet-sdr.mp4",
+    poster: "/img/manufacturing/waterjet-sdr.webp",
   },
   {
     id: "laser",
@@ -29,8 +29,8 @@ const CUTTING = [
     specs: [
       ["Machine", "Trotec Speedy 400 flexx"],
     ],
-    video: "/videos/mfg-laser.mp4",
-    poster: "/img/manufacturing/laser.webp",
+    video: "/videos/mfg-laser-sdr.mp4",
+    poster: "/img/manufacturing/laser-sdr.webp",
   },
 ];
 
@@ -48,7 +48,8 @@ const BAMBU_COUNT = PRINTERS.filter((p) => p.name.startsWith("Bambu")).length;
 const PRINTER_TOTAL = PRINTERS.reduce((sum, p) => sum + (p.count ?? 1), 0);
 
 const Manufacturing = () => (
-  <section id="manufacturing" className="w-full py-24 md:py-32">
+  <section id="manufacturing" className="relative z-10 w-full py-24 md:py-32">
+    {/* z-10 keeps this above the Cornfield Clash glow, whose soft edge reaches up into this section */}
     <div className="mx-auto max-w-7xl px-4 md:px-10">
       <SectionHeader
         title="Made in-house."

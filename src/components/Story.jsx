@@ -339,7 +339,8 @@ const Story = () => {
   return (
     <section id="story" className="w-full py-24 text-paper md:py-32">
       <div className="mx-auto max-w-7xl px-4 md:px-10">
-        <p className="text-center text-xs font-bold uppercase tracking-[0.2em] text-accent">
+        {/* Above the colour glow below it (whose soft edge reaches up here) */}
+        <p className="relative z-10 text-center text-xs font-bold uppercase tracking-[0.2em] text-accent">
           Illinois&apos; premier robotics competition
         </p>
 
